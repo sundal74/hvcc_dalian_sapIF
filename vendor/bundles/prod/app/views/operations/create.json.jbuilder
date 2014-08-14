@@ -1,0 +1,2 @@
+json.(@operation, :id,:domain_id,:name,:description,:workcenter_id,:dept_type,:op_type,:op_seq,:inv_flag,:rm_input_flag,:track_rm_store_id,:main_op_flag,:creator_id,:updater_id,:created_at,:updated_at)
+		

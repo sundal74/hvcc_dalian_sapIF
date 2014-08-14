@@ -1,0 +1,83 @@
+/*------------------------------------------------------------------------------
+-- 개체 이름: HVCCT_MES.SP_DEFECT_CODE_INF
+-- 만든 날짜 : 2013-05-04 오후 7:11:03
+-- 마지막으로 수정한 날짜 : 2013-05-04 오후 7:13:12
+-- 상태 : VALID
+------------------------------------------------------------------------------*/
+CREATE OR REPLACE PROCEDURE HVCCT_MES.SP_DEFECT_CODE_INF
+ IS
+ DEFECT_CNT	NUMBER(10);
+ CURRENT_DOMAIN	VARCHAR2(64);
+BEGIN
+	SELECT DOMAIN_ID INTO CURRENT_DOMAIN FROM CURRENT_WORK_DATE;
+  CURRENT_DOMAIN := CURRENT_DOMAIN;
+
+	BEGIN
+  	FOR CUR_ORD IN (
+    	SELECT IDC.DEFECT_CODE AS NAME,
+				IDC.DESCRIPTION AS DESCRIPTION
+			FROM INF_DEFECT_CODE IDC WHERE IDC.DOWNLOAD_YN  = 'N' AND IDC.VALDATE < SYSDATE
+		)
+
+    LOOP
+
+    	BEGIN
+      	SELECT COUNT(*) INTO DEFECT_CNT FROM DEFECT_CODES WHERE NAME = CUR_ORD.NAME;
+
+        IF(DEFECT_CNT = 0) THEN
+
+         	INSERT INTO
+          	DEFECT_CODES(
+            	ID
+            	, DOMAIN_ID
+             	, NAME
+             	, DESCRIPTION
+              , CREATED_AT
+              , UPDATED_AT
+            )
+          VALUES (
+          	CONCAT(CONCAT(CURRENT_DOMAIN, '-'), CUR_ORD.NAME)
+           	, CURRENT_DOMAIN
+           	, CUR_ORD.NAME
+            , CUR_ORD.DESCRIPTION
+            , SYSDATE
+            , SYSDATE
+          );
+
+          UPDATE
+        		INF_DEFECT_CODE
+        	SET
+        		DOWNLOAD_YN  = 'Y'
+    				, DOWNLOAD_TIME = SYSDATE
+        	WHERE
+        		DEFECT_CODE = CUR_ORD.NAME;
+
+        ELSE
+        	UPDATE
+        		INF_DEFECT_CODE
+        	SET
+        		DOWNLOAD_YN  = 'S'
+    				, DOWNLOAD_TIME = SYSDATE
+        	WHERE
+        		DEFECT_CODE = CUR_ORD.NAME;
+
+        END IF;
+
+      EXCEPTION
+        	WHEN OTHERS THEN
+          DBMS_OUTPUT.PUT_LINE('# ERROR1 : ' || TO_CHAR(SQLCODE));
+          	ROLLBACK;
+        END;
+
+    END LOOP;
+
+    COMMIT;
+
+  EXCEPTION
+  	WHEN OTHERS THEN
+    DBMS_OUTPUT.PUT_LINE('# ERROR2 : ' || TO_CHAR(SQLCODE));
+    	ROLLBACK;
+  END;
+END SP_DEFECT_CODE_INF;
+
+

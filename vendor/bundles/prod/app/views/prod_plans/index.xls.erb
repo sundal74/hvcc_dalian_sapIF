@@ -1,0 +1,74 @@
+<?xml version="1.0"?>
+<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"
+  xmlns:o="urn:schemas-microsoft-com:office:office"
+  xmlns:x="urn:schemas-microsoft-com:office:excel"
+  xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"
+  xmlns:html="http://www.w3.org/TR/REC-html40">
+  <Worksheet ss:Name="Sheet1">
+    <Table>
+      <Row>
+        <Cell><Data ss:Type="String">Routing</Data></Cell>
+		<Cell><Data ss:Type="String">Routing Desc.</Data></Cell>
+		<Cell><Data ss:Type="String">Product</Data></Cell>
+		<Cell><Data ss:Type="String">Product Desc.</Data></Cell>
+		<Cell><Data ss:Type="String">Option</Data></Cell>
+	  <% @collection[:headers].each do |date| %>
+		<Cell><Data ss:Type="String"><%= date %></Data></Cell>
+		<Cell><Data ss:Type="String"></Data></Cell>
+		<Cell><Data ss:Type="String"></Data></Cell>
+		<Cell><Data ss:Type="String"></Data></Cell>
+	  <% end %>
+      </Row>
+      <Row>
+        <Cell><Data ss:Type="String"></Data></Cell>
+		<Cell><Data ss:Type="String"></Data></Cell>
+		<Cell><Data ss:Type="String"></Data></Cell>
+		<Cell><Data ss:Type="String"></Data></Cell>
+		<Cell><Data ss:Type="String"></Data></Cell>
+	  <% @collection[:headers].each do |date| %>
+		<Cell><Data ss:Type="String">Priority</Data></Cell>
+		<Cell><Data ss:Type="String">Day</Data></Cell>
+		<Cell><Data ss:Type="String">Priority</Data></Cell>
+		<Cell><Data ss:Type="String">Night</Data></Cell>
+	  <% end %>
+      </Row>
+    <% @collection[:items].each do |item| %>
+      <Row>
+		<Cell><Data ss:Type="String"><%= item['operation'] %></Data></Cell>
+		<Cell><Data ss:Type="String"><%= item['operation_desc'] %></Data></Cell>
+		<Cell><Data ss:Type="String"><%= item['product'] %></Data></Cell>
+		<Cell><Data ss:Type="String"><%= item['product_desc'] %></Data></Cell>
+		<Cell><Data ss:Type="String"><%= item['customer'] ? item['customer'].split('-')[1] : '' %></Data></Cell>
+		<Cell><Data ss:Type="Number"><%= item['D0-1-seq'] %></Data></Cell>
+		<Cell><Data ss:Type="Number"><%= item['D0-1'] %></Data></Cell>
+		<Cell><Data ss:Type="Number"><%= item['D0-2-seq'] %></Data></Cell>
+		<Cell><Data ss:Type="Number"><%= item['D0-2'] %></Data></Cell>
+		<Cell><Data ss:Type="Number"><%= item['D1-1-seq'] %></Data></Cell>
+		<Cell><Data ss:Type="Number"><%= item['D1-1'] %></Data></Cell>
+		<Cell><Data ss:Type="Number"><%= item['D1-2-seq'] %></Data></Cell>
+		<Cell><Data ss:Type="Number"><%= item['D1-2'] %></Data></Cell>
+		<Cell><Data ss:Type="Number"><%= item['D2-1-seq'] %></Data></Cell>
+		<Cell><Data ss:Type="Number"><%= item['D2-1'] %></Data></Cell>
+		<Cell><Data ss:Type="Number"><%= item['D2-2-seq'] %></Data></Cell>
+		<Cell><Data ss:Type="Number"><%= item['D2-2'] %></Data></Cell>
+		<Cell><Data ss:Type="Number"><%= item['D3-1-seq'] %></Data></Cell>
+		<Cell><Data ss:Type="Number"><%= item['D3-1'] %></Data></Cell>
+		<Cell><Data ss:Type="Number"><%= item['D3-2-seq'] %></Data></Cell>
+		<Cell><Data ss:Type="Number"><%= item['D3-2'] %></Data></Cell>
+		<Cell><Data ss:Type="Number"><%= item['D4-1-seq'] %></Data></Cell>
+		<Cell><Data ss:Type="Number"><%= item['D4-1'] %></Data></Cell>
+		<Cell><Data ss:Type="Number"><%= item['D4-2-seq'] %></Data></Cell>
+		<Cell><Data ss:Type="Number"><%= item['D4-2'] %></Data></Cell>
+		<Cell><Data ss:Type="Number"><%= item['D5-1-seq'] %></Data></Cell>
+		<Cell><Data ss:Type="Number"><%= item['D5-1'] %></Data></Cell>
+		<Cell><Data ss:Type="Number"><%= item['D5-2-seq'] %></Data></Cell>
+		<Cell><Data ss:Type="Number"><%= item['D5-2'] %></Data></Cell>
+		<Cell><Data ss:Type="Number"><%= item['D6-1-seq'] %></Data></Cell>
+		<Cell><Data ss:Type="Number"><%= item['D6-1'] %></Data></Cell>
+		<Cell><Data ss:Type="Number"><%= item['D6-2-seq'] %></Data></Cell>
+		<Cell><Data ss:Type="Number"><%= item['D6-2'] %></Data></Cell>
+      </Row>
+    <% end %>
+    </Table>
+  </Worksheet>
+</Workbook>

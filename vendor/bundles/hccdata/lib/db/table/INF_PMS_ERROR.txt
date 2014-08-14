@@ -1,0 +1,59 @@
+/*------------------------------------------------------------------------------
+-- 개체 이름 : HVCCD_MES.INF_PMS_ERROR
+-- 만든 날짜 : 2013-06-04 오후 10:56:36
+-- 마지막으로 수정한 날짜 : 2013-06-04 오후 10:56:36
+-- 상태 : VALID
+------------------------------------------------------------------------------*/
+DROP TABLE HVCCD_MES.INF_PMS_ERROR CASCADE CONSTRAINTS;
+
+CREATE TABLE HVCCD_MES.INF_PMS_ERROR (
+  PRD_DATE     VARCHAR2(8)          NULL, 
+  SHIFT        VARCHAR2(1)          NULL, 
+  ROUTING      VARCHAR2(5)          NULL, 
+  ST_NO        VARCHAR2(3)          NULL, 
+  ERR_CODE     VARCHAR2(4)          NULL, 
+  ERR_CNT      NUMBER(38)           NULL, 
+  PROG_ID      VARCHAR2(30)         NULL, 
+  ACTDTTM      VARCHAR2(17)         NULL, 
+  UPLOAD_YN    VARCHAR2(1)          NULL
+)
+TABLESPACE HVCCD_MES_DAT
+PCTFREE 10
+PCTUSED 0
+INITRANS 1
+MAXTRANS 255
+STORAGE (
+    INITIAL 64 K
+    NEXT 1024 K
+    MINEXTENTS 1
+    MAXEXTENTS UNLIMITED
+)
+LOGGING
+NOCACHE
+MONITORING
+NOPARALLEL
+;
+
+/*------------------------------------------------------------------------------
+-- 개체 이름 : HVCCD_MES.IX_PMS_ERR_0
+-- 만든 날짜 : 2013-06-04 오후 10:56:36
+-- 마지막으로 수정한 날짜 : 2013-06-04 오후 10:56:36
+-- 상태 : VALID
+------------------------------------------------------------------------------*/
+DROP INDEX HVCCD_MES.IX_PMS_ERR_0;
+
+CREATE UNIQUE INDEX HVCCD_MES.IX_PMS_ERR_0
+ON HVCCD_MES.INF_PMS_ERROR (PRD_DATE, SHIFT, ROUTING, ST_NO, ERR_CODE)
+PCTFREE 10
+INITRANS 2
+MAXTRANS 255
+STORAGE (
+    INITIAL 64 K
+    NEXT 1024 K
+    MINEXTENTS 1
+    MAXEXTENTS UNLIMITED
+    PCTINCREASE 0
+)
+TABLESPACE HVCCD_MES_DAT
+LOGGING
+NOPARALLEL;

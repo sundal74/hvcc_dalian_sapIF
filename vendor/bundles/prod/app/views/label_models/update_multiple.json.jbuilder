@@ -1,0 +1,1 @@
+json._msg 'LabelModel multiple updated successfully'

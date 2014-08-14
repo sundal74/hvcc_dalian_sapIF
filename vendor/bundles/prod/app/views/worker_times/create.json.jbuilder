@@ -1,0 +1,1 @@
+json.(@worker_time, :id,:domain_id,:work_date,:shift,:operation_id,:machine_id,:product_id,:prod_order_id,:user_id,:start_time,:end_time,:work_term,:loss_term)

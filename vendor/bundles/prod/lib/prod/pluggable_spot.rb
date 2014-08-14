@@ -1,0 +1,35 @@
+Hatio::PluggableSpot::add_domain_pluggable do
+  # HAS_MANY BEGIN BLOCK DON'T REMOVE
+	has_many :prod_closings
+	has_many :label_models
+	has_many :spc_items
+	has_many :serial_lots
+	has_many :rm_lots
+	has_many :label_masters
+	has_many :defects
+	has_many :qty_actuals
+	has_many :machine_chk_plans
+	has_many :label_plans
+	has_many :machine_losses
+	has_many :inventory_hists
+	has_many :inventories
+	has_many :lots
+	has_many :prod_plans
+	has_many :prod_orders
+	has_many :std_work_docs
+	has_many :notices
+	has_many :defect_codes
+	has_many :loss_templates
+	has_many :loss_codes
+  has_many :stores
+  has_many :prod_params
+  has_many :product_parts
+  has_many :products
+  has_many :raw_materials
+  has_many :operations
+  has_many :machines
+  has_many :workcenters
+	has_many :suppliers
+	has_many :customers
+	has_many :worker_times
+end

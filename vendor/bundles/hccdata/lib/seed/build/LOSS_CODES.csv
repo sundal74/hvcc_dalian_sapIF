@@ -1,0 +1,50 @@
+NAME,DESCRIPTION
+BC2,Check / Repair M/C Without Failure
+BD1,Change or Repair by Accident (Jig & FIXTURE)
+BD2,Change or Repair by Plan (Jig & FIXTURE)
+BE1,Change or Repair by Accident (Mold & DIE)
+BE2,Change or Repair by Plan (Mold & DIE)
+BF1,Inspection / Rework Before Shipping
+BF2,Rework For Shpiped Part
+BG1,Utility Stop
+BH1,Model Change by Plan
+BH2,Model Change by Accident
+CA1,Rework Requested by.....
+CB1,Inspection / Rework For Returned Part
+CC1,Produce Other Company Products
+CD1,Support Other Line
+CE1,Part Transfer
+CF1,Transfer Scrap
+DA1,TEST
+AA1,Monthly Morning Meeting
+AA2,Qcc. Activity Meeting
+AA3,Event or Campaign Company Wide
+AB1,Orientation
+AB2,Training In Company
+AC1,Military Training
+AD1,Lay/out Change , M/CTrial Run
+AD2,PM. Activity By Plan
+AE1,Build Sample For New Project or Team
+AF1,Power Down
+AF2,Natural Disaster
+AG1,Break (Follow Policy)
+AH1,Inventory (Monthly , Yearly)
+AH3,Insert Material
+AI1,Setup Time
+AJ1,Waiting Time  PC
+AJ2,Waiting Time  Prod.
+BA1,Turning , Refill , Warm Up , Cleaning Before  Work
+BA2,Morning Talk
+BA3,Moving Storage Reload
+BA4,Job Order , Reporting Paperwork Delay
+BA5,Monitoring
+BA6,Cleaning or 5S
+BA7,Work to Prepare
+BB1,Local Part Shortage
+BB2,Raw / Sub Material Shortage
+BB3,Import Part Shortage
+BB4,Inhouse Material Shortage
+BB5,Inhouse Material Quality
+BB6,Damage Shortage
+BB7,Box Shortage
+BC1,Repair M/C by Failure

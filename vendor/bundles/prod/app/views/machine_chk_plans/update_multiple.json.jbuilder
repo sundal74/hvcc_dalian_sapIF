@@ -1,0 +1,1 @@
+json._msg 'MachineChkPlan multiple updated successfully'

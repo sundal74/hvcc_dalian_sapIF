@@ -1,0 +1,46 @@
+<h1>Editing user</h1>
+
+<%= form_for(@user) do |f| %>
+  <% if @user.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@user.errors.count, "error") %> prohibited this user from being saved:</h2>
+
+      <ul>
+      <% @user.errors.full_messages.each do |msg| %>
+        <li><%= msg %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= f.label :name %><br />
+    <%= f.text_field :name %>
+  </div>
+  <div class="field">
+    <%= f.label :email %><br />
+    <%= f.text_field :email %>
+  </div>
+  <div class="field">
+    <%= f.label :lang %><br />
+    <%= f.text_field :lang %>
+  </div>
+  <div class="field">
+    <%= f.label :timezone %><br />
+	<%= f.time_zone_select :timezone, ActiveSupport::TimeZone.us_zones, :include_blank => true %>
+  </div>
+  <div class="field">
+    <%= f.label :default_domain_id %><br />
+    <%= f.text_field :default_domain_id %>
+  </div>
+  <div class="field">
+    <%= f.label :admin_flag %><br />
+    <%= f.check_box :admin_flag %>
+  </div>
+  <div class="actions">
+    <%= f.submit %>
+  </div>
+<% end %>
+
+<%= link_to 'Show', @user %> |
+<%= link_to 'Back', users_path %>

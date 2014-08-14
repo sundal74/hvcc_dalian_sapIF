@@ -1,0 +1,143 @@
+<h1>MES Alarms</h1><br/>
+
+<% if(@tsfr_alarms && @tsfr_alarms.length > 0) %>
+
+<h2>TSFR Informations</h2><br/>
+
+<table border='1' bordercolor='#5D5D5D' cellspacing='0' cellpadding='1'>
+	<tr bgcolor='#C4DEFF'>
+		<th width='80'>Date</th>
+		<th width='50'>Shift</th>
+		<th width='70'>Routing</th>
+		<th width='70'>Station</th>
+		<th width='70'>P-Code</th>
+		<th width='70'>Total</th>
+		<th width='70'>First</th>
+		<th width='70'>Reject</th>
+		<th width='70'>Rate(%)</th>
+		<th width='150'>Comment</th>
+		<th width='130'>Occurred Time</th>
+	</tr>
+	
+	<% @tsfr_alarms.each do |tsfr_alarm| %>
+	<tr>
+		<td align='center'><%= tsfr_alarm['prd_date'] %></td>
+		<td align='center'><%= tsfr_alarm['shift'] %></td>
+		<td align='center'><%= tsfr_alarm['routing'] %></td>
+		<td align='center'><%= tsfr_alarm['st_no'] %></td>
+		<td align='center'><%= tsfr_alarm['p_code'] %></td>
+		<td align='right'><%= tsfr_alarm['total'] %> </td>
+		<td align='right'><%= tsfr_alarm['first'] %> </td>
+		<td align='right'><%= tsfr_alarm['reject'] %> </td>
+		<td align='right'><%= (tsfr_alarm['total'].to_i > 0) ? ((tsfr_alarm['first'].to_f / tsfr_alarm['total'].to_f) * 100.0).to_i : 0 %> </td>
+		<td> <%= tsfr_alarm['comments'] %></td>
+		<td align='center'><%= Time.strptime(tsfr_alarm['actdttm'][0..13], '%Y%m%d%H%M%S').strftime('%Y-%m-%d %H:%M:%S') %></td>
+	</tr>
+	<% end %>
+</table>
+
+<br/><br/>
+
+<% end %>
+
+<% if(@error_alarms && @error_alarms.length > 0) %>
+
+<h2>Equipment Informations</h2><br/>
+
+<table border='1' bordercolor='#5D5D5D' cellspacing='0' cellpadding='1'>
+	<tr bgcolor='#C4DEFF'>
+		<th width='80'>Date</th>
+		<th width='50'>Shift</th>
+		<th width='70'>Routing</th>
+		<th width='70'>Station</th>
+		<th width='80'>Error Code</th>
+		<th width='80'>Error Count</th>
+		<th width='200'>Comment</th>
+		<th width='130'>Occurred Time</th>
+	</tr>
+	
+	<% @error_alarms.each do |error_alarm| %>
+	<tr>
+		<td align='center'><%= error_alarm['prd_date'] %></td>
+		<td align='center'><%= error_alarm['shift'] %></td>
+		<td align='center'><%= error_alarm['routing'] %></td>
+		<td align='center'><%= error_alarm['st_no'] %></td>
+		<td align='center'><%= error_alarm['err_code'] %></td>
+		<td align='right'><%= error_alarm['err_cnt'] %> </td>
+		<td> <%= error_alarm['comments'] %></td>
+		<td align='center'><%= Time.strptime(error_alarm['actdttm'][0..13], '%Y%m%d%H%M%S').strftime('%Y-%m-%d %H:%M:%S') %></td>
+	</tr>
+	<% end %>
+</table>
+
+<br/><br/>
+<% end %>
+
+<% if(@measure_miss_alarms && @measure_miss_alarms.length > 0) %>
+
+<h2>Quality(Measurement Missing) Informations</h2><br/>
+
+<table border='1' bordercolor='#5D5D5D' cellspacing='0' cellpadding='1'>
+	<tr bgcolor='#C4DEFF'>
+		<th width='80'>Date</th>
+		<th width='50'>Shift</th>
+		<th width='70'>Routing</th>
+		<th width='70'>Station</th>
+		<th width='70'>P-Code</th>
+		<th width='120'>Internal No.</th>
+		<th width='80'>Serial No.</th>
+		<th width='170'>Comment</th>
+		<th width='130'>Occurred Time</th>
+	</tr>
+	
+	<% @measure_miss_alarms.each do |measure_miss_alarm| %>
+	<tr>
+		<td align='center'><%= measure_miss_alarm['prd_date'] %></td>
+		<td align='center'><%= measure_miss_alarm['shift'] %></td>
+		<td align='center'><%= measure_miss_alarm['routing'] %></td>
+		<td align='center'><%= measure_miss_alarm['st_no'] %></td>
+		<td align='center'><%= measure_miss_alarm['p_code'] %></td>
+		<td align='center'><%= measure_miss_alarm['int_no'] %></td>
+		<td align='center'><%= measure_miss_alarm['srl_no'] %></td>
+		<td> <%= measure_miss_alarm['comments'] %></td>
+		<td align='center'><%= Time.strptime(measure_miss_alarm['actdttm'][0..13], '%Y%m%d%H%M%S').strftime('%Y-%m-%d %H:%M:%S') %></td>
+	</tr>
+	<% end %>
+</table>
+
+<br/><br/>
+<% end %>
+
+<% if(@ng_product_alarms && @ng_product_alarms.length > 0) %>
+
+<h2>Quality(NG Product) Informations</h2><br/>
+
+<table border='1' bordercolor='#5D5D5D' cellspacing='0' cellpadding='1'>
+	<tr bgcolor='#C4DEFF'>
+		<th width='80'>Date</th>
+		<th width='50'>Shift</th>
+		<th width='70'>Routing</th>
+		<th width='70'>Station</th>
+		<th width='70'>P-Code</th>
+		<th width='120'>Internal No.</th>
+		<th width='80'>Serial No.</th>
+		<th width='170'>Comment</th>
+		<th width='130'>Occurred Time</th>
+	</tr>
+	
+	<% @ng_product_alarms.each do |ng_product_alarm| %>
+	<tr>
+		<td align='center'><%= ng_product_alarm['prd_date'] %></td>
+		<td align='center'><%= ng_product_alarm['shift'] %></td>
+		<td align='center'><%= ng_product_alarm['routing'] %></td>
+		<td align='center'><%= ng_product_alarm['st_no'] %></td>
+		<td align='center'><%= ng_product_alarm['p_code'] %></td>
+		<td align='center'><%= ng_product_alarm['int_no'] %></td>
+		<td align='center'><%= ng_product_alarm['srl_no'] %></td>
+		<td> <%= ng_product_alarm['comments'] %></td>
+		<td align='center'><%= Time.strptime(ng_product_alarm['actdttm'][0..13], '%Y%m%d%H%M%S').strftime('%Y-%m-%d %H:%M:%S') %></td>
+	</tr>
+	<% end %>
+</table>
+
+<% end %>

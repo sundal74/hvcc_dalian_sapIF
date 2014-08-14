@@ -1,0 +1,1 @@
+json.(@qty_actual, :id,:domain_id,:work_date,:shift,:operation_id,:machine_id,:product_id,:customer_id,:prod_order_id,:actual_qty,:defect_qty,:rework_qty,:description,:created_at)

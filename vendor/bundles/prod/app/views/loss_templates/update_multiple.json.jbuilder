@@ -1,0 +1,1 @@
+json._msg 'LossTemplate multiple updated successfully'

@@ -1,0 +1,103 @@
+/*------------------------------------------------------------------------------
+-- 개체 이름: HVCCT_MES.SP_MACHINE_INF
+-- 만든 날짜 : 2013-05-04 오후 2:07:10
+-- 마지막으로 수정한 날짜 : 2013-05-04 오후 2:51:57
+-- 상태 : VALID
+------------------------------------------------------------------------------*/
+CREATE OR REPLACE PROCEDURE HVCCT_MES.SP_MACHINE_INF
+ IS
+ MACHINE_NAME	VARCHAR2(64);
+ MACHINE_CNT	NUMBER(10);
+BEGIN
+	BEGIN
+  	FOR CUR_ORD IN (
+    	SELECT
+				OPERATIONS.DOMAIN_ID AS DOMAIN_ID,
+				IE.EQUIPMENT_CODE AS NAME,
+				IE.DESCRIPTION AS DESCRIPTION,
+				OPERATIONS.ID AS OPERATION_ID,
+				IE.CYCLETIME AS CYCLETIME,
+				IE.UPH AS UPH,
+				DECODE(IE.MAIN_OP_YN, 'Y', 1, 0) AS MAIN_OP_FLAG,
+				DECODE(IE.PLAN_DIST_RATE, 'Y', 1, 0) AS PLAN_DIST_RATE
+			FROM INF_EQUIP IE
+			INNER JOIN OPERATIONS ON OPERATIONS.name = IE.ROUTING_CODE WHERE IE.DOWNLOAD_YN  = 'N' AND IE.VALDATE < SYSDATE
+		)
+
+    LOOP
+
+    	BEGIN
+      	SELECT COUNT(*) INTO MACHINE_CNT FROM MACHINES WHERE NAME = CUR_ORD.NAME;
+
+        IF(MACHINE_CNT = 0) THEN
+
+         	INSERT INTO
+          	MACHINES(
+            	ID
+            	, DOMAIN_ID
+             	, NAME
+             	, DESCRIPTION
+             	, OPERATION_ID
+             	, CYCLETIME
+             	, UPH
+             	, MAIN_OP_FLAG
+             	, PLAN_DIST_RATE
+              , CREATED_AT
+              , UPDATED_AT
+            )
+          VALUES (
+          	CONCAT(CONCAT(CUR_ORD.DOMAIN_ID, '-'), CUR_ORD.NAME)
+           	, CUR_ORD.DOMAIN_ID
+           	, CUR_ORD.NAME
+           	, CUR_ORD.DESCRIPTION
+           	, CUR_ORD.OPERATION_ID
+           	, CUR_ORD.CYCLETIME
+           	, CUR_ORD.UPH
+           	, CUR_ORD.MAIN_OP_FLAG
+           	, CUR_ORD.PLAN_DIST_RATE
+            , SYSDATE
+            , SYSDATE
+          );
+
+        ELSE
+					UPDATE
+          	MACHINES MACHINE
+          SET
+           	MACHINE.DESCRIPTION = CUR_ORD.DESCRIPTION,
+           	MACHINE.OPERATION_ID = CUR_ORD.OPERATION_ID,
+           	MACHINE.CYCLETIME = CUR_ORD.CYCLETIME,
+           	MACHINE.UPH = CUR_ORD.UPH,
+           	MACHINE.MAIN_OP_FLAG = CUR_ORD.MAIN_OP_FLAG,
+           	MACHINE.PLAN_DIST_RATE = CUR_ORD.PLAN_DIST_RATE
+          WHERE
+          	MACHINE.DOMAIN_ID = CUR_ORD.DOMAIN_ID
+           	AND MACHINE.NAME = CUR_ORD.NAME;
+
+        END IF;
+
+        UPDATE
+        	INF_EQUIP
+        SET
+        	DOWNLOAD_YN  = 'Y'
+    			, DOWNLOAD_TIME = SYSDATE
+        WHERE
+        	EQUIPMENT_CODE = CUR_ORD.NAME
+          AND DESCRIPTION = CUR_ORD.DESCRIPTION;
+
+      EXCEPTION
+        	WHEN OTHERS THEN
+          DBMS_OUTPUT.PUT_LINE('# ERROR1 : ' || TO_CHAR(SQLCODE));
+          	ROLLBACK;
+        END;
+
+    END LOOP;
+
+    COMMIT;
+
+  EXCEPTION
+  	WHEN OTHERS THEN
+    DBMS_OUTPUT.PUT_LINE('# ERROR2 : ' || TO_CHAR(SQLCODE));
+    	ROLLBACK;
+  END;
+
+END SP_MACHINE_INF;

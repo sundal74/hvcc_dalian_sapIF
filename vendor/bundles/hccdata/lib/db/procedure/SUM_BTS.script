@@ -1,0 +1,103 @@
+create or replace
+PROCEDURE SP_SUM_BTS
+
+IS
+  D_CURDATE 					DATE;
+  V_CURDATE						VARCHAR2(64);
+
+BEGIN
+	D_CURDATE := SYSDATE - 1;
+    V_CURDATE := TO_CHAR(D_CURDATE, 'YYYY-MM-DD');
+
+    BEGIN
+    	FOR CUR_ORD IN (
+ 		    SELECT
+			    DOMAIN_ID,
+                SHIFT,
+                OPERATION_ID,
+                MACHINE_ID,
+                PRODUCT_ID,
+                SUM_PLAN_QTY,
+                SUM_ACTUAL_QTY,
+                GAP_QTY,
+                PLAN_ACHV_QTY,
+                PLAN_BELOW_QTY,
+                PLAN_ACT_LOWER_QTY,
+                CASE
+                    WHEN SUM_PLAN_QTY = 0 THEN 0
+                    WHEN SUM_PLAN_QTY > 0 THEN (SUM_ACTUAL_QTY / SUM_PLAN_QTY)
+                END AS VOL_PERF,
+
+                CASE
+                    WHEN PLAN_ACT_LOWER_QTY = 0 THEN 0
+                    WHEN (SUM_PLAN_QTY = 0 OR SUM_ACTUAL_QTY = 0) THEN 0
+                    WHEN PLAN_ACT_LOWER_QTY > 0 THEN (
+                            PLAN_ACT_LOWER_QTY /
+                            CASE
+                                WHEN (SUM_PLAN_QTY > SUM_ACTUAL_QTY) THEN SUM_ACTUAL_QTY
+                                WHEN (SUM_PLAN_QTY <= SUM_ACTUAL_QTY) THEN SUM_PLAN_QTY
+                            END
+                    )
+                END AS MIX_PERF,
+
+                CASE
+                    WHEN PLAN_ACHV_QTY = 0 THEN 0
+                    WHEN PLAN_ACT_LOWER_QTY = 0 THEN 0
+                    WHEN PLAN_ACT_LOWER_QTY > 0 THEN (PLAN_ACHV_QTY / PLAN_ACT_LOWER_QTY)
+                END AS SEQ_PERF
+            FROM (
+                SELECT
+                    DOMAIN_ID,
+                    SHIFT,
+                    OPERATION_ID,
+                    MACHINE_ID,
+                    PRODUCT_ID,
+                    SUM(ORDER_QTY) SUM_PLAN_QTY,
+                    SUM(ACTUAL_QTY) SUM_ACTUAL_QTY,
+                    (SUM(ORDER_QTY) - SUM(ACTUAL_QTY)) GAP_QTY,
+                    CASE
+                        WHEN (SUM(ORDER_QTY) - SUM(ACTUAL_QTY)) < 0 THEN 0
+                        WHEN (SUM(ORDER_QTY) - SUM(ACTUAL_QTY)) >= 0 THEN SUM(ACTUAL_QTY)
+                    END AS PLAN_ACHV_QTY,
+                    CASE
+                        WHEN (SUM(ORDER_QTY) - SUM(ACTUAL_QTY)) >= 0 THEN SUM(ACTUAL_QTY)
+                        WHEN (SUM(ORDER_QTY) - SUM(ACTUAL_QTY)) < 0 THEN 0
+                    END AS PLAN_BELOW_QTY,
+                    CASE
+                        WHEN (SUM(ORDER_QTY) > SUM(ACTUAL_QTY)) THEN SUM(ACTUAL_QTY)
+                        WHEN (SUM(ORDER_QTY) <= SUM(ACTUAL_QTY)) THEN SUM(ORDER_QTY)
+                    END AS PLAN_ACT_LOWER_QTY
+                FROM
+                    PROD_ORDERS
+                WHERE
+                    TO_CHAR(ORDER_DATE, 'YYYY-MM-DD') = V_CURDATE
+                GROUP BY
+                    DOMAIN_ID, SHIFT, OPERATION_ID, MACHINE_ID, PRODUCT_ID
+            )
+      )
+
+      LOOP
+        INSERT INTO SUM_BTS
+            (ID, DOMAIN_ID, WORK_DATE, SHIFT,
+             OPERATION_ID, MACHINE_ID, PRODUCT_ID,
+             PLAN_QTY, ACTUAL_QTY, PLAN_ACT_LOWER_QTY,
+             PLAN_ACT_GAP_QTY, PLAN_BELOW_QTY,
+             PLAN_ACHV_QTY, VOL_PERF, MIX_PERF, SEQ_PERF, BTS_VALUE)
+        VALUES
+            (SYS_GUID(), CUR_ORD.DOMAIN_ID, TO_DATE(V_CURDATE, 'YYYY-MM-DD'), CUR_ORD.SHIFT,
+             CUR_ORD.OPERATION_ID, CUR_ORD.MACHINE_ID, CUR_ORD.PRODUCT_ID,
+             CUR_ORD.SUM_PLAN_QTY, CUR_ORD.SUM_ACTUAL_QTY, CUR_ORD.PLAN_ACT_LOWER_QTY,
+             CUR_ORD.GAP_QTY, CUR_ORD.PLAN_BELOW_QTY, CUR_ORD.PLAN_ACHV_QTY,
+             ROUND(CUR_ORD.VOL_PERF, 3), ROUND(CUR_ORD.MIX_PERF, 3), ROUND(CUR_ORD.SEQ_PERF, 3),
+             ROUND(CUR_ORD.VOL_PERF * CUR_ORD.MIX_PERF * CUR_ORD.SEQ_PERF, 3));
+      END LOOP;
+
+  DBMS_OUTPUT.PUT_LINE('COMPLETED');
+
+  EXCEPTION
+      WHEN OTHERS THEN
+    DBMS_OUTPUT.PUT_LINE('# ERROR : ' || TO_CHAR(SQLCODE));
+    ROLLBACK;
+  END;
+
+END SP_SUM_BTS;

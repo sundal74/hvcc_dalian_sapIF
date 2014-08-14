@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"
+  xmlns:o="urn:schemas-microsoft-com:office:office"
+  xmlns:x="urn:schemas-microsoft-com:office:excel"
+  xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"
+  xmlns:html="http://www.w3.org/TR/REC-html40">
+  <Worksheet ss:Name="Sheet1">
+    <Table>
+      <Row>
+        <Cell><Data ss:Type="String">ID</Data></Cell>
+        <Cell><Data ss:Type="String">Name</Data></Cell>
+        <Cell><Data ss:Type="String">Description</Data></Cell>
+        <Cell><Data ss:Type="String">Script Type</Data></Cell>
+		<Cell><Data ss:Type="String">Collection Tag</Data></Cell>
+		<Cell><Data ss:Type="String">Member Tag</Data></Cell>
+		<Cell><Data ss:Type="String">Active</Data></Cell>
+		<Cell><Data ss:Type="String">Show Params</Data></Cell>
+		<Cell><Data ss:Type="String">Atomic</Data></Cell>
+      </Row>
+    <% @collection.each do |diy_service| %>
+      <Row>
+        <Cell><Data ss:Type="String"><%= diy_service.id %></Data></Cell>
+        <Cell><Data ss:Type="String"><%= diy_service.name %></Data></Cell>
+        <Cell><Data ss:Type="String"><%= diy_service.description %></Data></Cell>
+        <Cell><Data ss:Type="String"><%= diy_service.script_type %></Data></Cell>
+        <Cell><Data ss:Type="String"><%= diy_service.collection_tag %></Data></Cell>
+		<Cell><Data ss:Type="String"><%= diy_service.member_tag %></Data></Cell>
+		<Cell><Data ss:Type="String"><%= diy_service.active_flag %></Data></Cell>
+		<Cell><Data ss:Type="String"><%= diy_service.show_params_flag %></Data></Cell>
+		<Cell><Data ss:Type="String"><%= diy_service.atomic_flag %></Data></Cell>
+      </Row>
+    <% end %>
+    </Table>
+  </Worksheet>
+</Workbook>

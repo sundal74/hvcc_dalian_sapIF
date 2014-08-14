@@ -1,0 +1,48 @@
+NAME,DESCRIPTION,WORKCENTER_ID,DEPT_TYPE,OP_SEQ,OP_TYPE,INV_FLAG,RM_INPUT_FLAG,TRACK_RM_STORE_ID,UPLOAD_FLAG
+6CAKA,COMP Machining Line,System-T05,1,1,LOT,0,0,,0
+6CAMA,COMP Assembly,System-T05,1,1,LOT,0,0,,0
+6PAKA,Press,System-T01,1,1,LOT,0,0,,0
+6PALA,Fin Mill,System-T01,1,2,LOT,0,0,,0
+6PAMA,RAD C/B,System-T07,1,1,LOT,0,0,,0
+6PAMB,HTR C/B,System-T09,1,1,LOT,0,0,,0
+6PAMC,COND C/B,System-T06,1,1,LOT,0,0,,0
+6PAMD,OC Core Assy,System-T11,1,1,LOT,0,0,,0
+6PANA,RAD Degreaser,System-T02,1,1,LOT,0,0,,0
+6PANB,Fluxing,System-T02,1,2,LOT,0,0,,0
+6PANC,CAB Brazing,System-T02,1,3,LOT,1,0,,0
+6PAPA,Condenser sub ass'y,System-T08,1,0,LOT,,,,
+6PAPB,EVAP Core Assy,System-T08,1,1,LOT,0,0,,0
+6PAPC,Heater Core Sub Assy,System-T09,1,10,LOT,0,0,,0
+6PAPD,IC Core Assy,System-T10,1,1,LOT,0,0,,0
+6PAQA,Condenser Dimension Check,System-T08,1,5,LOT,,,,
+6PAQB,EVAP Torch Welding,System-T08,1,3,LOT,0,0,,0
+6PARA,EVAP V/V Assy,System-T08,1,4,LOT,0,0,,0
+6PARC,He Leak Test,System-T03,1,1,LOT,0,1,System-6PANC,0
+6PARE,HTR A/L Test,System-T09,1,2,LOT,0,0,,0
+6PARG,Radiator Air Leak Test,System-T07,1,4,LOT,0,0,,0
+6PARH,EVAP A/L Test,System-T08,1,2,LOT,0,0,,0
+6PARI,IC A/L and Final,System-T10,1,2,LOT,0,0,,0
+6PARK,OC A/L Test,System-T11,1,2,LOT,0,0,,0
+6PASA,RAD Final,System-T07,1,3,LOT,0,1,System-6PANC,0
+6PASB,EVAP Final,System-T08,1,5,LOT,0,0,,0
+6PASC,COND Final,System-T06,1,2,LOT,0,1,System-6PANC,0
+6PASD,HTR Final,System-T09,1,3,LOT,0,0,,0
+6PATA,Injection Molding,System-T04,1,1,LOT,0,0,,0
+6PATB,RAD U/Sonic Welding & LEAK Test,System-T07,1,2,LOT,0,0,,0
+6PAUA,BLWR Unit Assy,System-T13,2,1,LOT,0,0,,0
+6PAUB,Cooling Unit Assy,System-T13,2,1,LOT,0,0,,0
+6PAUC,HTR Unit Assy,System-T13,2,5,LOT,0,0,,0
+6PAUD,Control Unit Ass'y,System-T15,2,1,LOT,0,0,,0
+6PAUE,R/drier Ass'y,System-T16,2,1,LOT,0,0,,0
+6PAUF,Comp & CLUTCH Ass'y,System-T05,2,2,LOT,0,0,,0
+6PAUJ,HVAC MNL Assy,System-T13,2,1,LOT,0,0,,0
+6PAUK,HVAC Conv Assy,System-T13,1,1,LOT,0,0,,0
+6PAUL,Air Cleaner Assy,System-T14,2,1,LOT,0,0,,0
+6PAUM,Hot Charge Duct Assy,System-T14,2,1,LOT,0,0,,0
+6PAVA,Dealer Kit Ass'y,System-T17,2,1,LOT,0,0,,0
+6PAWG,H& P Degreasing,System-T12,1,1,LOT,1,0,,0
+6PAWJ,H& p Bending,System-T12,1,2,LOT,1,0,System-6PAWG,0
+6PAWK,PIERCING & DIMPLE PRESS,System-T11,1,6,LOT,,,,
+6PAWQ,H& P Final Assy,System-T12,2,6,LOT,0,0,System-6PAWJ,0
+6PAUG,Intercooler Core Final,System-T10,2,3,LOT,0,0,,0
+6PBA0,6PBA0,System-T17,1,0,,0,0,,0

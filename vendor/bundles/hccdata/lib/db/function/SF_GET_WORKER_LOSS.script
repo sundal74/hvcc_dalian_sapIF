@@ -1,0 +1,102 @@
+create or replace
+FUNCTION           SF_GET_WORKER_LOSS
+(
+    ARG_WORKER_TIME_ID    IN    VARCHAR2,
+    ARG_WORK_DATE       IN  VARCHAR2,
+    ARG_START_TIME      IN  DATE,
+    ARG_END_TIME        IN  DATE
+)
+    
+    RETURN number IS
+    RESULT       NUMBER := 0;
+    I_WEEK_DAY   NUMBER := 0;
+
+BEGIN
+
+  SELECT TO_NUMBER(TO_CHAR(ARG_START_TIME, 'd')) INTO I_WEEK_DAY FROM DUAL;
+
+  SELECT
+    SUM(LOSS) INTO RESULT
+  FROM (
+   SELECT
+    (CASE
+      WHEN ARG_START_TIME <= LST AND ARG_END_TIME >= LET
+        THEN ROUND((LET - LST) * 60 * 24)
+      WHEN ARG_START_TIME >= LST AND ARG_END_TIME <= LET
+        THEN ROUND((ARG_END_TIME - ARG_START_TIME) * 60 * 24)
+      WHEN ARG_START_TIME >= LST AND ARG_START_TIME <= LET
+        THEN ROUND((LET - ARG_START_TIME) * 60 * 24)
+      WHEN ARG_END_TIME >= LST AND ARG_END_TIME <= LET
+        THEN ROUND((ARG_END_TIME - LST) * 60 * 24)
+      END
+      ) AS LOSS
+   FROM (
+      SELECT
+        TO_DATE((ARG_WORK_DATE || ' ' || LT.START_TIME), 'YYYY-MM-DD HH24:MI') LST,
+        TO_DATE((ARG_WORK_DATE || ' ' || LT.END_TIME), 'YYYY-MM-DD HH24:MI') LET
+      FROM
+        LOSS_TEMPLATES LT, WORKER_TIMES WT
+      WHERE
+        WT.ID = ARG_WORKER_TIME_ID AND
+        LT.WEEK_DAY = I_WEEK_DAY AND
+        (
+          -- CASE 1 : StartTime이 Loss Start보다 작고, EndTime이 Loss End 보다 클 때
+          (
+            TO_DATE((ARG_WORK_DATE || ' ' || LT.START_TIME), 'YYYY-MM-DD HH24MI') >= ARG_START_TIME AND
+            TO_DATE((ARG_WORK_DATE || ' ' || LT.END_TIME), 'YYYY-MM-DD HH24MI') <= ARG_END_TIME
+          )
+
+          -- CASE2 : StartTime이 Loss Start 보다 크고 EndTime이 Loss End 보다 작을 때
+          OR
+          (
+            (
+              ARG_END_TIME BETWEEN
+              TO_DATE((ARG_WORK_DATE || ' ' || LT.START_TIME), 'YYYY-MM-DD HH24MI') AND
+              TO_DATE((ARG_WORK_DATE || ' ' || LT.END_TIME), 'YYYY-MM-DD HH24MI')
+            )
+
+            AND
+            (
+              ARG_START_TIME <= TO_DATE((ARG_WORK_DATE || ' ' || LT.START_TIME), 'YYYY-MM-DD HH24MI')
+            )
+          )
+
+          OR
+          -- CASE3 : EndTime이 Loss Start 보다 크고 Loss End 보다 작을 때
+          (
+            (
+              ARG_END_TIME BETWEEN
+              TO_DATE((ARG_WORK_DATE || ' ' || LT.START_TIME), 'YYYY-MM-DD HH24MI') AND
+              TO_DATE((ARG_WORK_DATE || ' ' || LT.END_TIME), 'YYYY-MM-DD HH24MI')
+            )
+            AND
+            (
+              ARG_START_TIME <= TO_DATE((ARG_WORK_DATE || ' ' || LT.START_TIME), 'YYYY-MM-DD HH24MI')
+            )
+          )
+
+          OR
+          -- CASE4 : StartTime이 Loss Start 보다 크고 Loss End 보다 작을 때
+          (
+            (
+              ARG_START_TIME BETWEEN
+              TO_DATE((ARG_WORK_DATE || ' ' || LT.START_TIME), 'YYYY-MM-DD HH24MI') AND
+              TO_DATE((ARG_WORK_DATE || ' ' || LT.END_TIME), 'YYYY-MM-DD HH24MI')
+            )
+            AND
+            (
+              ARG_END_TIME >= TO_DATE((ARG_WORK_DATE || ' ' || LT.END_TIME), 'YYYY-MM-DD HH24MI')
+            )
+          )
+        )
+      )
+    );
+
+
+    RETURN(RESULT);
+
+EXCEPTION
+    WHEN OTHERS THEN
+    DBMS_OUTPUT.PUT_LINE('# ERROR : ' || TO_CHAR(SQLCODE));
+      RETURN -1;
+END SF_GET_WORKER_LOSS;

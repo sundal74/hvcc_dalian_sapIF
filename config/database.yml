@@ -1,0 +1,58 @@
+<% if defined?($servlet_context) %>
+development:
+  adapter: jdbcmysql
+  jndi: java:jdbc/MySqlDS2
+  driver: com.mysql.jdbc.Driver
+
+production:
+  adapter: jdbcmysql
+  jndi: java:jdbc/MySqlDS2
+  driver: com.mysql.jdbc.Driver
+
+<% elsif RUBY_PLATFORM =~ /java/ %>
+
+development:
+  adapter: jdbc
+  driver: oracle.jdbc.driver.OracleDriver
+  url: jdbc:oracle:thin:@172.20.9.1:1521:HMES
+  username: HVCCD_MES
+  password: HVCCD_MES
+  pool: 10
+  
+test:
+  adapter: jdbc
+  driver: oracle.jdbc.driver.OracleDriver
+  url: jdbc:oracle:thin:@172.20.9.1:1521:HMES
+  username: HVCCD_MES
+  password: HVCCD_MES
+  pool: 50
+
+production:
+  adapter: jdbc
+  driver: oracle.jdbc.driver.OracleDriver
+  url: jdbc:oracle:thin:@172.20.9.1:1521:HMES
+  username: HVCCD_MES
+  password: HVCCD_MES
+  pool: 50
+
+<% else %>
+
+development:
+  adapter: sqlite3
+  database: db/development.sqlite3
+  pool: 5
+  timeout: 5000
+
+test:
+  adapter: sqlite3
+  database: db/test.sqlite3
+  pool: 5
+  timeout: 5000
+
+production:
+  adapter: sqlite3
+  database: db/production.sqlite3
+  pool: 5
+  timeout: 5000
+      
+<% end %>

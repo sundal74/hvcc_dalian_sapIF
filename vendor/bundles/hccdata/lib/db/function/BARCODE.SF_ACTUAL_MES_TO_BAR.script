@@ -1,0 +1,51 @@
+CREATE OR REPLACE FUNCTION SF_ACTUAL_MES_TO_BAR(
+
+ARG_GUBUN                       IN VARCHAR2
+, ARG_PERF_DT                   IN VARCHAR2
+, ARG_PERF_SQ                   IN VARCHAR2
+, ARG_BASELOC_CD                IN VARCHAR2
+, ARG_LOC_CD                    IN VARCHAR2
+, ARG_ITEM_CD                   IN VARCHAR2
+, ARG_BARCODE                   IN VARCHAR2
+, ARG_LOT_FG                    IN VARCHAR2
+, ARG_LOT_QTY                   IN VARCHAR2
+, ARG_LOT_NO                    IN VARCHAR2
+, ARG_SER_NO                    IN VARCHAR2
+, ARG_CUST_CD                   IN VARCHAR2
+, ARG_CUST_ITEM                 IN VARCHAR2
+, ARG_REG_ID                    IN VARCHAR2
+, ARG_REG_IP                    IN VARCHAR2
+, ARG_ITEM_SQ                   IN VARCHAR2
+, ARG_LANG_FG                   IN INTEGER
+)
+
+  RETURN varchar2 IS
+  RESULT varchar2(1000) := '';
+  RTN_CURSOR      SYS_REFCURSOR;
+  RTN_CD          VARCHAR2(100);
+  RTN_DESC        VARCHAR2(1000);
+
+BEGIN
+
+    SP_CTRL_PROD_PERF_NEW01( ARG_GUBUN, ARG_PERF_DT, ARG_PERF_SQ, ARG_BASELOC_CD, ARG_LOC_CD, ARG_ITEM_CD, ARG_BARCODE, ARG_LOT_FG, ARG_LOT_QTY, ARG_LOT_NO, ARG_SER_NO, ARG_CUST_CD, ARG_CUST_ITEM, ARG_REG_ID, ARG_REG_IP, ARG_ITEM_SQ, ARG_LANG_FG, RTN_CURSOR);
+
+    FETCH RTN_CURSOR INTO RTN_CD, RTN_DESC;
+    DBMS_OUTPUT.PUT_LINE('RTN_CD      = ' || RTN_CD );
+    DBMS_OUTPUT.PUT_LINE('RTN_DESC      = ' || RTN_DESC );
+    CLOSE RTN_CURSOR;
+    
+    IF (RTN_CD > 0) THEN 
+        RESULT := 'OK';
+    ELSE
+        RESULT := 'SQL_ERROR_CODE : ' || RTN_CD || ', SQL_ERROR_MSG : ' || RTN_DESC;
+    END IF;
+    
+    RETURN(RESULT);
+    
+EXCEPTION
+    WHEN OTHERS THEN
+      RESULT := 'SQL_ERROR_CODE : ' || SQLCODE || ', SQLCODE' || SUBSTR(SQLERRM, 1, 1024);
+      ROLLBACK;
+      RETURN(RESULT);
+
+END SF_ACTUAL_MES_TO_BAR;

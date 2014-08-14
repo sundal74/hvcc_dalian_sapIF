@@ -1,0 +1,1 @@
+json._msg 'DiySelection multiple updated successfully'

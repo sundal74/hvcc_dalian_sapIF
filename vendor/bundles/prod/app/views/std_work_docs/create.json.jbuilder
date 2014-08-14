@@ -1,0 +1,1 @@
+json.(@std_work_doc, :id,:domain_id,:name,:description,:operation_id,:machine_id,:file_group_id,:creator_id,:updater_id,:created_at,:updated_at)

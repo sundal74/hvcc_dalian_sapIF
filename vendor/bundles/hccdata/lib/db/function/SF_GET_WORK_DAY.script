@@ -1,0 +1,80 @@
+/*------------------------------------------------------------------------------
+-- 개체 이름: HVCCT_MES.SF_GET_WORK_DAY
+-- 만든 날짜 : 2013-04-01 오후 5:13:39
+-- 마지막으로 수정한 날짜 : 2013-04-01 오후 5:13:51
+-- 상태 : VALID
+------------------------------------------------------------------------------*/
+CREATE OR REPLACE FUNCTION HVCCT_MES.SF_GET_WORK_DAY
+(
+      ARG_DOMAIN_ID     IN    VARCHAR2,
+      ARG_CUR_DATE      IN    DATE
+)
+RETURN STRING
+IS
+       V_WORK_DAY             VARCHAR2(100) := '' ;
+       V_CUR_TIME             VARCHAR2(100) := '' ;
+
+       V_1STIME               VARCHAR2(20)  := '' ;
+       V_1ETIME               VARCHAR2(20)  := '' ;
+       V_2STIME               VARCHAR2(20)  := '' ;
+       V_2ETIME               VARCHAR2(20)  := '' ;
+       V_3STIME               VARCHAR2(20)  := '' ;
+       V_3ETIME               VARCHAR2(20)  := '' ;
+--     V_SHIFT                VARCHAR2(2)   := '' ;
+
+BEGIN
+        V_CUR_TIME := TO_CHAR(ARG_CUR_DATE, 'YYYYMMDDHH24MISS');
+
+        SELECT
+        CASE WHEN SHIFT1_START >= SHIFT1_START     AND SHIFT1_START  <= '2400'
+             THEN TO_CHAR(ARG_CUR_DATE    ,'YYYYMMDD')|| SHIFT1_START
+             ELSE TO_CHAR(ARG_CUR_DATE + 1,'YYYYMMDD')|| SHIFT1_START  END SHIFT1_START_TIME,
+
+        CASE WHEN SHIFT1_END   >  SHIFT1_START     AND SHIFT1_END    <= '2400'
+             THEN TO_CHAR(ARG_CUR_DATE    ,'YYYYMMDD')|| SHIFT1_END
+             ELSE TO_CHAR(ARG_CUR_DATE + 1,'YYYYMMDD')|| SHIFT1_END    END SHIFT_1_END_TIME,
+
+        CASE WHEN SHIFT2_START >= SHIFT1_START     AND SHIFT2_START  <= '2400'
+             THEN TO_CHAR(ARG_CUR_DATE    ,'YYYYMMDD')|| SHIFT2_START
+             ELSE TO_CHAR(ARG_CUR_DATE + 1,'YYYYMMDD')|| SHIFT2_START  END SHIFT2_START_TIME,
+
+        CASE WHEN SHIFT2_END   >  SHIFT1_START     AND SHIFT2_END    <= '2400'
+             THEN TO_CHAR(ARG_CUR_DATE    ,'YYYYMMDD')|| SHIFT2_END
+             ELSE TO_CHAR(ARG_CUR_DATE + 1,'YYYYMMDD')|| SHIFT2_END    END SHIFT2_END_TIME,
+
+        CASE WHEN SHIFT3_START >= SHIFT1_START     AND SHIFT3_START  <= '2400'
+             THEN TO_CHAR(ARG_CUR_DATE    ,'YYYYMMDD')|| SHIFT3_START
+             ELSE TO_CHAR(ARG_CUR_DATE + 1,'YYYYMMDD')|| SHIFT3_START  END SHIFT3_START_TIME,
+
+        CASE WHEN SHIFT3_END   >  SHIFT1_START     AND SHIFT3_END    <= '2400'
+             THEN TO_CHAR(ARG_CUR_DATE    ,'YYYYMMDD')|| SHIFT3_END
+             ELSE TO_CHAR(ARG_CUR_DATE + 1,'YYYYMMDD')|| SHIFT3_END    END SHIFT3_END_TIME
+
+        INTO V_1STIME, V_1ETIME, V_2STIME, V_2ETIME, V_3STIME,V_3ETIME
+        FROM ( SELECT NVL(SUBSTR(SHIFT1_START, 0,2)  || SUBSTR(SHIFT1_START, 4,2), ' ') SHIFT1_START,
+                      NVL(SUBSTR(SHIFT1_END  , 0,2)  || SUBSTR(SHIFT1_END  , 4,2), ' ') SHIFT1_END  ,
+                      NVL(SUBSTR(SHIFT2_START, 0,2)  || SUBSTR(SHIFT2_START, 4,2), ' ') SHIFT2_START,
+                      NVL(SUBSTR(SHIFT2_END  , 0,2)  || SUBSTR(SHIFT2_END  , 4,2), ' ') SHIFT2_END  ,
+                      NVL(SUBSTR(SHIFT3_START, 0,2)  || SUBSTR(SHIFT3_START, 4,2), ' ') SHIFT3_START,
+                      NVL(SUBSTR(SHIFT3_END  , 0,2)  || SUBSTR(SHIFT3_END  , 4,2), ' ') SHIFT3_END
+                 FROM SHIFTS
+                WHERE ID             = ARG_DOMAIN_ID
+                  AND SHIFT1_START IS NOT NULL
+             );
+
+        IF   V_CUR_TIME >= V_1STIME                       AND
+             V_CUR_TIME <= SUBSTR(V_CUR_TIME,0,8)||'2400' THEN
+             V_WORK_DAY := SUBSTR(V_CUR_TIME,0,8);
+        ELSE
+             V_WORK_DAY := TO_CHAR(ARG_CUR_DATE - 1,'YYYYMMDD');
+        END IF;
+
+    RETURN V_WORK_DAY;
+
+EXCEPTION
+     WHEN OTHERS THEN
+          RETURN   '';
+
+END SF_GET_WORK_DAY;
+
+

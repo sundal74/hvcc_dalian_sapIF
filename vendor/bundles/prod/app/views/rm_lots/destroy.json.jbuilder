@@ -1,0 +1,1 @@
+json.id @rm_lot.id

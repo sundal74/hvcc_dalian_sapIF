@@ -1,0 +1,8 @@
+o: ActiveSupport::Cache::Entry	:@compressedF:@created_atf1408002848:@expires_in0:@value"ƒ[I"|Ext.define('App.store.Favorite', {
+	extend : 'Ext.data.Store',
+	
+	model : 'App.model.Favorite',
+	
+	autoSync : true
+});
+:EF

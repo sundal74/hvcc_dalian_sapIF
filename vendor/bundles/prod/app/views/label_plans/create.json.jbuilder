@@ -1,0 +1,2 @@
+json.(@label_plan, :id,:domain_id,:order_date,:shift,:operation_id,:product_id,:customer_id,:order_qty,:lot_qty,:print_qty,:printed_qty,:completed_flag,:reprinted_flag,:creator_id,:updater_id,:created_at,:updated_at)
+		

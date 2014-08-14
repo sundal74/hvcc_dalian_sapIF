@@ -1,0 +1,164 @@
+create or replace
+PROCEDURE           SP_TERMINATE_SHIFT_2
+
+
+
+IS
+    D_CURDATE               DATE;
+    V_CURDATE               VARCHAR2(30);
+    D_SHIFT1_TIME           DATE;
+    D_SHIFT2_TIME           DATE;
+    CAL_TIME                VARCHAR2(60);
+    CUR_ORD_WORKTIME        VARCHAR2(30);
+    SHIFT	                NUMBER(5);
+    CURRENT_ORDER_DATE      DATE;
+    V_WORK_DATE             VARCHAR2(50) :='';
+    V_SHIFT                 VARCHAR2(50) :='';
+    N_CNT                   NUMBER :=0;
+    WT_LOSS	                NUMBER(38);
+
+BEGIN
+    D_CURDATE := SYSDATE;
+    V_CURDATE := TO_CHAR(D_CURDATE,'YYYY-MM-DD');
+    D_SHIFT1_TIME := TO_TIMESTAMP(V_CURDATE || ' 08:00', 'YYYY-MM-DD HH24:MI');
+    D_SHIFT2_TIME := TO_TIMESTAMP(V_CURDATE || ' 20:00', 'YYYY-MM-DD HH24:MI');
+
+    BEGIN
+	    SELECT SHIFT, WORK_DATE INTO SHIFT, CURRENT_ORDER_DATE FROM CURRENT_WORK_DATE;
+
+        SHIFT := SHIFT;
+        CURRENT_ORDER_DATE := CURRENT_ORDER_DATE;
+
+        FOR CUR_ORD IN (
+            SELECT
+                ID, ORDER_DATE, SHIFT, ACTUAL_START_TIME, WORKTIME
+            FROM
+                PROD_ORDERS
+            WHERE
+                TO_CHAR(ORDER_DATE, 'YYYY-MM-DD') = TO_CHAR(CURRENT_ORDER_DATE, 'YYYY-MM-DD') AND
+                ACTUAL_START_TIME IS NOT NULL AND
+                ACTUAL_END_TIME IS NULL)
+        LOOP
+
+          BEGIN
+            IF(CUR_ORD.SHIFT = 1) THEN
+
+                CAL_TIME := (TO_DATE(TO_CHAR(D_SHIFT2_TIME, 'YYYYMMDDHH24MI'), 'YYYYMMDDHH24MI')
+              					 - TO_DATE(TO_CHAR(CUR_ORD.ACTUAL_START_TIME, 'YYYYMMDDHH24MI'), 'YYYYMMDDHH24MI')) * (24*60);
+
+                IF(CUR_ORD.WORKTIME IS NULL) THEN
+              	    CUR_ORD_WORKTIME := 0;
+                ELSIF(CUR_ORD.WORKTIME IS NOT NULL) THEN
+              	    CUR_ORD_WORKTIME := CUR_ORD.WORKTIME;
+                END IF;
+
+                UPDATE
+                    PROD_ORDERS
+                SET
+                    ACTUAL_END_TIME = D_SHIFT2_TIME, STATUS = 'T', WORKTIME = CUR_ORD_WORKTIME + CAL_TIME
+                WHERE
+                    ID = CUR_ORD.ID;
+
+            ELSIF(CUR_ORD.SHIFT = 2) THEN
+
+             	CAL_TIME := (TO_DATE(TO_CHAR(D_SHIFT1_TIME, 'YYYYMMDDHH24MI'), 'YYYYMMDDHH24MI')
+             					 - TO_DATE(TO_CHAR(CUR_ORD.ACTUAL_START_TIME, 'YYYYMMDDHH24MI'), 'YYYYMMDDHH24MI')) * (24*60);
+
+                IF(CUR_ORD.WORKTIME IS NULL) THEN
+              	    CUR_ORD_WORKTIME := 0;
+                ELSIF(CUR_ORD.WORKTIME IS NOT NULL) THEN
+              	    CUR_ORD_WORKTIME := CUR_ORD.WORKTIME;
+                END IF;
+
+                UPDATE
+              	    PROD_ORDERS
+                SET
+              	    ACTUAL_END_TIME = D_SHIFT1_TIME, STATUS = 'T', WORKTIME = CUR_ORD_WORKTIME + CAL_TIME
+                WHERE
+              	    ID = CUR_ORD.ID;
+
+            END IF;
+
+            EXCEPTION
+                WHEN OTHERS THEN
+                DBMS_OUTPUT.PUT_LINE('# ERROR : ' || TO_CHAR(SQLCODE));
+                    ROLLBACK;
+            END;
+
+        END LOOP;
+
+
+        IF (SHIFT = 1) THEN
+            UPDATE
+          	    WORKER_TIMES WORKER_TIME
+            SET
+          	    END_TIME = D_SHIFT2_TIME,
+                WORK_TERM =
+				    (TO_DATE(TO_CHAR(D_SHIFT2_TIME, 'YYYYMMDDHH24MI'), 'YYYYMMDDHH24MI') -
+                    (TO_DATE(TO_CHAR(WORKER_TIME.START_TIME, 'YYYYMMDDHH24MI'), 'YYYYMMDDHH24MI'))) * (24*60)
+            WHERE
+          	    TO_CHAR(WORKER_TIME.WORK_DATE, 'YYYY-MM-DD') = TO_CHAR(CURRENT_ORDER_DATE, 'YYYY-MM-DD') AND
+                WORKER_TIME.END_TIME IS NULL;
+
+            DBMS_OUTPUT.PUT_LINE('# CUR_ORD.SHIFT = 1 : ' || CURRENT_ORDER_DATE);
+
+        ELSIF (SHIFT = 2) THEN
+        	UPDATE
+          	    WORKER_TIMES WORKER_TIME
+            SET
+          	    END_TIME = D_SHIFT1_TIME,
+                WORK_TERM =
+                    (TO_DATE(TO_CHAR(D_SHIFT1_TIME, 'YYYYMMDDHH24MI'), 'YYYYMMDDHH24MI') -
+                    (TO_DATE(TO_CHAR(WORKER_TIME.START_TIME, 'YYYYMMDDHH24MI'), 'YYYYMMDDHH24MI'))) * (24*60)
+            WHERE
+                TO_CHAR(WORKER_TIME.WORK_DATE, 'YYYY-MM-DD') = TO_CHAR(CURRENT_ORDER_DATE, 'YYYY-MM-DD') AND
+                WORKER_TIME.END_TIME IS NULL;
+
+            DBMS_OUTPUT.PUT_LINE('# CUR_ORD.SHIFT = 2 : ' || CURRENT_ORDER_DATE);
+        END IF;
+
+        FOR CUR_2 IN (
+            SELECT
+                ID
+            FROM
+                WORKER_TIMES
+            WHERE
+                TO_CHAR(WORK_DATE, 'YYYY-MM-DD') = TO_CHAR(CURRENT_ORDER_DATE, 'YYYY-MM-DD') AND START_TIME IS NOT NULL )
+
+            LOOP
+                SELECT SF_GET_WORKER_TIMES_LOSS(CUR_2.ID) INTO WT_LOSS FROM DUAL;
+
+                UPDATE
+                    WORKER_TIMES WT
+                SET
+                    LOSS_TERM = WT_LOSS
+                WHERE
+                    CUR_2.ID = WT.ID;
+
+                DBMS_OUTPUT.PUT_LINE('# CUR_ORD.SHIFT = 3 : ' || CURRENT_ORDER_DATE);
+            END LOOP;
+
+
+            FOR CUR_1 IN (SELECT * FROM DOMAINS)
+
+                LOOP
+                    SELECT COUNT(ID) INTO N_CNT FROM  CURRENT_WORK_DATE WHERE DOMAIN_ID = CUR_1.ID;
+
+                    IF N_CNT > 0 THEN
+                        DELETE FROM CURRENT_WORK_DATE WHERE DOMAIN_ID = CUR_1.ID;
+                    END IF;
+
+                    SELECT TO_DATE(SF_GET_WORK_DAY(CUR_1.ID, SYSDATE), 'YYYYMMDD')  , SF_GET_SHIFT(CUR_1.ID,SYSDATE) INTO V_WORK_DATE, V_SHIFT FROM DUAL;
+
+        	        INSERT INTO CURRENT_WORK_DATE (ID, DOMAIN_ID, WORK_DATE, SHIFT) VALUES( SYS_GUID(), CUR_1.ID, V_WORK_DATE, V_SHIFT);
+
+    		    END LOOP;
+
+        COMMIT;
+
+    EXCEPTION
+        WHEN OTHERS THEN
+        	DBMS_OUTPUT.PUT_LINE('# ERROR : ' || TO_CHAR(SQLCODE));
+            ROLLBACK;
+    END;
+END;

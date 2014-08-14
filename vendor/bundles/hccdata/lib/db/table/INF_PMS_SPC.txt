@@ -1,0 +1,84 @@
+/*------------------------------------------------------------------------------
+-- 개체 이름 : HVCCD_MES.INF_PMS_SPC
+-- 만든 날짜 : 2013-06-11 오후 9:07:04
+-- 마지막으로 수정한 날짜 : 2013-06-12 오후 2:26:35
+-- 상태 : VALID
+------------------------------------------------------------------------------*/
+DROP TABLE HVCCD_MES.INF_PMS_SPC CASCADE CONSTRAINTS;
+
+CREATE TABLE HVCCD_MES.INF_PMS_SPC (
+  ID           VARCHAR2(64)       NOT NULL, 
+  PRD_DATE     VARCHAR2(8)            NULL, 
+  ROUTING      VARCHAR2(5)            NULL, 
+  ST_NO        VARCHAR2(5)            NULL, 
+  P_CODE       VARCHAR2(3)            NULL, 
+  ITEM_NAME    VARCHAR2(4000)         NULL, 
+  SEQ          NUMBER                 NULL, 
+  VALUE1       FLOAT(22)              NULL, 
+  VALUE2       FLOAT(22)              NULL, 
+  VALUE3       FLOAT(22)              NULL, 
+  VALUE4       FLOAT(22)              NULL, 
+  VALUE5       FLOAT(22)              NULL, 
+  PROG_ID      VARCHAR2(30)           NULL, 
+  ACTDTTM      VARCHAR2(17)           NULL, 
+  UPLOAD_YN    VARCHAR2(2)            NULL, 
+  ITEM_NO      VARCHAR2(20)           NULL, 
+  X_VAL        FLOAT(22)         DEFAULT 0.0              NULL, 
+  R_VAL        FLOAT(22)         DEFAULT 0.0              NULL
+)
+TABLESPACE HVCCD_MES_DAT
+PCTFREE 10
+PCTUSED 0
+INITRANS 1
+MAXTRANS 255
+STORAGE (
+    INITIAL 64 K
+    NEXT 1024 K
+    MINEXTENTS 1
+    MAXEXTENTS UNLIMITED
+)
+LOGGING
+NOCACHE
+MONITORING
+NOPARALLEL
+;
+
+/*------------------------------------------------------------------------------
+-- 개체 이름 : HVCCD_MES.IX_PMS_SPC_0
+-- 만든 날짜 : 2013-06-12 오후 2:26:35
+-- 마지막으로 수정한 날짜 : 2013-06-12 오후 2:26:35
+-- 상태 : VALID
+------------------------------------------------------------------------------*/
+DROP INDEX HVCCD_MES.IX_PMS_SPC_0;
+
+CREATE INDEX HVCCD_MES.IX_PMS_SPC_0
+ON HVCCD_MES.INF_PMS_SPC (PRD_DATE, ITEM_NO, P_CODE)
+PCTFREE 10
+INITRANS 2
+MAXTRANS 255
+STORAGE (
+    INITIAL 64 K
+    NEXT 1024 K
+    MINEXTENTS 1
+    MAXEXTENTS UNLIMITED
+    PCTINCREASE 0
+)
+TABLESPACE HVCCD_MES_DAT
+LOGGING
+NOPARALLEL;
+
+ALTER TABLE HVCCD_MES.INF_PMS_SPC ADD
+(
+    PRIMARY KEY ( ID )
+        USING INDEX
+        TABLESPACE HVCCD_MES_DAT 
+        PCTFREE 10
+        INITRANS 2
+        MAXTRANS 255
+        STORAGE (
+            INITIAL 64 K
+            NEXT 1024 K
+            MINEXTENTS 1
+            MAXEXTENTS UNLIMITED
+        )
+);

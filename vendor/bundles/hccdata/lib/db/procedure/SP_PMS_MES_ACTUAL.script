@@ -1,0 +1,254 @@
+create or replace
+PROCEDURE SP_PMS_MES_ACTUAL
+ IS
+    V_DOMAIN_ID             VARCHAR2(20);
+    D_CURDATE               DATE;
+    V_CURDATE               VARCHAR2(10);
+    N_CURSHIFT              NUMBER(1);
+    D_FROMDATE              DATE;
+    V_FROMDATE              VARCHAR2(10);
+
+    N_ORDER_CNT             NUMBER(2);
+    V_ORDER_ID              VARCHAR2(64);
+    V_PRV_RUN_ORDER_ID      VARCHAR2(64);
+    N_PRV_RUN_ORDER_CNT     NUMBER(2);
+    V_ORDER_STATUS          VARCHAR2(5);
+    V_WC_ID                 VARCHAR2(64);
+    V_OP_ID                 VARCHAR2(64);
+    V_MC_ID                 VARCHAR2(64);
+    V_PD_ID                 VARCHAR2(64);
+    V_ORDER_START           VARCHAR2(10);
+    N_ACTUAL_HOUR           NUMBER(2);
+    N_ACTUAL_MIN            NUMBER(2);
+    N_HOUR_ACTUAL_CNT       NUMBER(2);
+BEGIN
+
+    SELECT ID INTO V_DOMAIN_ID FROM DOMAINS WHERE SYSTEM_FLAG = 1;
+    SELECT WORK_DATE, SHIFT INTO D_CURDATE, N_CURSHIFT FROM CURRENT_WORK_DATE WHERE DOMAIN_ID = V_DOMAIN_ID;
+    V_CURDATE := TO_CHAR(D_CURDATE, 'YYYYMMDD');
+    D_FROMDATE := D_CURDATE - 1;
+    V_FROMDATE := TO_CHAR(D_FROMDATE, 'YYYYMMDD');
+    --DBMS_OUTPUT.PUT_LINE('WORK_DATE : ' || V_CURDATE || ', SHIFT : ' || N_CURSHIFT);
+
+    FOR CUR_CSR IN (
+        SELECT
+            PRD_DATE, SHIFT, ROUTING, ST_NO, INT_NO, P_CODE, ACTUAL, ACTDTTM, MODEL_NO, EQUIPMENT
+        FROM (
+            SELECT
+                O.PRD_DATE, O.SHIFT, O.ROUTING, O.ST_NO, O.INT_NO, O.P_CODE, O.ACTUAL, O.ACTDTTM, M.MODEL_NO, S.EQUIPMENT
+            FROM
+                INF_PMS_OUTR O
+                INNER JOIN INF_PMS_MASTER_MODEL M ON O.P_CODE = M.P_CODE
+                INNER JOIN INF_PMS_MASTER_STATION S ON O.ST_NO = S.ST_NO
+            WHERE
+                O.UPLOAD_YN = 'N' AND
+                M.MODEL_NO IS NOT NULL AND
+                S.EQUIPMENT IS NOT NULL AND
+                O.ROUTING = S.ROUTING AND
+                O.ROUTING = M.ROUTING AND
+                O.PRD_DATE >= V_FROMDATE
+            ORDER BY
+                O.ACTDTTM ASC
+         ) WHERE ROWNUM <= 500
+    )
+
+    LOOP
+        BEGIN
+            --DBMS_OUTPUT.PUT_LINE('PRD_DATE : ' || CUR_CSR.PRD_DATE || ', SHIFT : ' || CUR_CSR.SHIFT || ', ROUTING : ' || CUR_CSR.ROUTING || ', ST_NO :' || CUR_CSR.ST_NO || ', INT_NO :' || CUR_CSR.INT_NO || ', P_CODE :' || CUR_CSR.P_CODE || ', MODEL_NO : ' || CUR_CSR.MODEL_NO || ', EQUIPMENT : ' || CUR_CSR.EQUIPMENT);
+			
+            V_OP_ID := CONCAT(V_DOMAIN_ID , '-' || CUR_CSR.ROUTING);
+            V_MC_ID := CONCAT(V_DOMAIN_ID , '-' || CUR_CSR.EQUIPMENT);
+            V_PD_ID := CONCAT(V_DOMAIN_ID , '-' || CUR_CSR.MODEL_NO);
+
+            -- 처리할 실적이 현재 시프트 날짜에 현재 시프트와 동일하면 ORDER를 찾아서 RUNNING 상태로 변경하고 그렇지 않으면 실적만 올린다.
+            IF V_CURDATE = CUR_CSR.PRD_DATE AND N_CURSHIFT = TO_NUMBER(CUR_CSR.SHIFT) THEN
+                V_ORDER_START := 'Y';
+            ELSE
+                V_ORDER_START := 'N';
+            END IF;
+
+            --DBMS_OUTPUT.PUT_LINE('ORDER START : ' || V_ORDER_START);
+            -- TODO 처음에 RUNNING 중인 오더를 찾고 없으면 STATUS를 빼고 조회한다.
+            SELECT
+                COUNT(*) INTO N_ORDER_CNT
+            FROM
+                PROD_ORDERS
+            WHERE
+                TO_CHAR(ORDER_DATE, 'YYYYMMDD') = CUR_CSR.PRD_DATE AND
+                SHIFT = TO_NUMBER(CUR_CSR.SHIFT) AND
+                OPERATION_ID = V_OP_ID AND
+                MACHINE_ID = V_MC_ID AND
+                PRODUCT_ID = V_PD_ID AND
+                ROWNUM <= 1;
+
+            IF N_ORDER_CNT > 0 THEN
+                -- ORDER가 있다면 ORDER_ID를 조회
+                SELECT
+                    ID, STATUS INTO V_ORDER_ID, V_ORDER_STATUS
+                FROM
+                    PROD_ORDERS
+                WHERE
+                    TO_CHAR(ORDER_DATE, 'YYYYMMDD') = CUR_CSR.PRD_DATE AND
+                    SHIFT = TO_NUMBER(CUR_CSR.SHIFT) AND
+                    OPERATION_ID = V_OP_ID AND
+                    MACHINE_ID = V_MC_ID AND
+                    PRODUCT_ID = V_PD_ID AND ROWNUM <= 1;
+
+                --DBMS_OUTPUT.PUT_LINE('EXIST ORDER ID : ' || V_ORDER_ID || ', STATUS : ' || V_ORDER_START);
+            ELSE
+                -- 오더가 없다면 오더를 생성한 후 ORDER_ID를 조회
+                V_ORDER_STATUS := 'W';
+                SELECT WORKCENTER_ID INTO V_WC_ID FROM OPERATIONS WHERE NAME = CUR_CSR.ROUTING;
+                SELECT SYS_GUID() INTO V_ORDER_ID FROM DUAL;
+
+                INSERT INTO PROD_ORDERS(
+                    ID, DOMAIN_ID, ORDER_DATE, SHIFT, WORKCENTER_ID, OPERATION_ID, MACHINE_ID,
+                    PRODUCT_ID, STATUS, ORDER_SEQ, CREATOR_ID, UPDATER_ID, CREATED_AT, UPDATED_AT
+                ) VALUES (
+                    V_ORDER_ID, V_DOMAIN_ID, TO_DATE(CUR_CSR.PRD_DATE, 'YYYYMMDD'), TO_NUMBER(CUR_CSR.SHIFT),
+                    V_WC_ID, V_OP_ID, V_MC_ID, V_PD_ID, 'W', 99, 'SYSTEM', 'SYSTEM', SYSDATE, SYSDATE
+                );
+
+                --DBMS_OUTPUT.PUT_LINE('NEW ORDER ID : ' || V_ORDER_ID || ', STATUS : W');
+            END IF;
+
+            -- ORDER STATUS가 R(RUNNING)이 아니고 V_ORDER_START가 'Y'이면 ORDER에 대한 상태 변경을 한다.
+            IF V_ORDER_STATUS != 'R' AND V_ORDER_START = 'Y' THEN
+                DBMS_OUTPUT.PUT_LINE('ORDER STARTING ...');
+                -- 해당 공정 및 설비에 현재 RUNNING 중인 ORDER를 찾는다.
+                SELECT
+                    COUNT(*) INTO N_PRV_RUN_ORDER_CNT
+                FROM
+                    PROD_ORDERS
+                WHERE
+                    ORDER_DATE = D_CURDATE AND
+                    SHIFT = TO_NUMBER(CUR_CSR.SHIFT) AND
+                    STATUS = 'R' AND
+                    OPERATION_ID = V_OP_ID AND
+                    MACHINE_ID = V_MC_ID;
+
+                -- 현재 실행 중인 ORDER가 있다면
+                IF N_PRV_RUN_ORDER_CNT > 0 THEN
+                    SELECT
+                        ID INTO V_PRV_RUN_ORDER_ID
+                    FROM
+                        PROD_ORDERS
+                    WHERE
+                        ORDER_DATE = D_CURDATE AND
+                        SHIFT = TO_NUMBER(CUR_CSR.SHIFT) AND
+                        STATUS = 'R' AND
+                        OPERATION_ID = V_OP_ID AND
+                        MACHINE_ID = V_MC_ID AND ROWNUM <= 1;
+
+                    --DBMS_OUTPUT.PUT_LINE('PRV RUN ORDER : ' || V_PRV_RUN_ORDER_ID );
+                    -- 만일 현재 RUNNING 중인 ORDER와 현재 실행할 ORDER 아이디가 다르면
+                    IF V_ORDER_ID != V_PRV_RUN_ORDER_ID THEN
+                        -- 이전에 RUNNING 중인 ORDER의 상태를 T(TERMINATED)로 바꾸고 END_TIME을 현재 시간으로 찍어주고 WORKTIME을 계산하여 업데이트한다.
+                        UPDATE
+                            PROD_ORDERS
+                        SET
+                            STATUS = 'T',
+                            ACTUAL_END_TIME = SYSDATE,
+                            UPDATER_ID = 'SYSTEM',
+                            UPDATED_AT = SYSDATE,
+                            WORKTIME = NVL(FLOOR((SYSDATE - ACTUAL_START_TIME) * 24 * 60), WORKTIME)
+                        WHERE
+                            ID = V_PRV_RUN_ORDER_ID;
+
+                        -- 이전에 RUNNING 중인 ORDER의 작업자 완료시간을 현재 시간으로, WORK_TERM을 계산하여 업데이트한다.
+                        -- UPDATE WORKER_TIMES SET END_TIME = SYSDATE, WORK_TERM = NVL(FLOOR((SYSDATE - START_TIME) * 24 * 60), WORK_TERM) WHERE PROD_ORDER_ID = V_PRV_RUN_ORDER_ID AND END_TIME IS NULL;
+
+                        --DBMS_OUTPUT.PUT_LINE('PRV RUN ORDER TERMINATED');
+                    END IF;
+                END IF;
+
+                -- 현재 실행할 ORDER의 상태를 'R'로 변경하고 START_TIME을 현재 시간으로 업데이트하고
+                UPDATE
+                    PROD_ORDERS
+                SET
+                    STATUS = 'R',
+                    ACTUAL_START_TIME = SYSDATE,
+                    WORKTIME = NVL(FLOOR((SYSDATE - ACTUAL_START_TIME) * 24 * 60), WORKTIME)
+                WHERE
+                    ID = V_ORDER_ID;
+
+                -- TODO
+                -- 이전에 RUNNING 중인 작업자를 END_TIME은 NULL, START_TIME은 현재시간으로 실행할 ORDER로 복사한다.
+                -- INSERT INTO WORKER_TIMES(ID, DOMAIN_ID, WORK_DATE, SHIFT, PROD_ORDER_ID, OPERATION_ID, MACHINE_ID, PRODUCT_ID, USER_ID, START_TIME)
+                -- SELECT SYS_GUID(), DOMAIN_ID, WORK_DATE, SHIFT, V_ORDER_ID, V_OP_ID, V_MC_ID, V_PD_ID, USER_ID, SYSDATE FROM WORKER_TIMES WHERE PROD_ORDER_ID = V_PRV_RUN_ORDER_ID;
+                -- DBMS_OUTPUT.PUT_LINE('NEW ORDER CHANGED TO RUN');
+            END IF;
+
+            -- PROD_ORDER 테이블에 실적을 올린다.
+            UPDATE PROD_ORDERS SET ACTUAL_QTY = ACTUAL_QTY + CUR_CSR.ACTUAL WHERE ID = V_ORDER_ID;
+            -- ACTDTTM으로 부터 시간대, 분대를 계산한다.
+            SELECT TO_CHAR(TO_DATE(SUBSTR(CUR_CSR.ACTDTTM, 0, 12), 'YYYYMMDDHH24MI'), 'HH24') INTO N_ACTUAL_HOUR FROM DUAL;
+            SELECT FLOOR(TO_CHAR(TO_DATE(SUBSTR(CUR_CSR.ACTDTTM, 0, 12), 'YYYYMMDDHH24MI'), 'MI') / 10) INTO N_ACTUAL_MIN FROM DUAL;
+            --DBMS_OUTPUT.PUT_LINE('HOUR : ' || N_ACTUAL_HOUR || ', MIN : ' || N_ACTUAL_MIN);
+			
+            -- SHIFT 정보와 시간이 맞지 않는 경우 
+            IF CUR_CSR.SHIFT = 1 AND N_ACTUAL_HOUR = 8 AND N_ACTUAL_MIN <= 2 THEN
+                N_ACTUAL_MIN := 3;
+            END IF;
+            
+            IF CUR_CSR.SHIFT = 2 AND N_ACTUAL_HOUR = 8 AND N_ACTUAL_MIN >= 3 THEN
+                N_ACTUAL_MIN := 2;
+            END IF;
+
+            IF CUR_CSR.SHIFT = 1 AND N_ACTUAL_HOUR = 20 AND N_ACTUAL_MIN >= 3 THEN
+                N_ACTUAL_MIN := 2;
+            END IF;
+            
+            IF CUR_CSR.SHIFT = 2 AND N_ACTUAL_HOUR = 20 AND N_ACTUAL_MIN <= 2 THEN
+                N_ACTUAL_MIN := 3;
+            END IF;
+
+            -- SUM_HOURLY_ACTUALS 테이블에서 계산한 시간대와 분대 그리고 ORDER_ID로 조회한다.
+            SELECT COUNT(*) INTO N_HOUR_ACTUAL_CNT FROM SUM_HOURLY_ACTUALS WHERE PROD_ORDER_ID = V_ORDER_ID AND ACTUAL_HOUR = N_ACTUAL_HOUR AND ACTUAL_MIN = N_ACTUAL_MIN;
+
+            IF N_HOUR_ACTUAL_CNT > 0 THEN
+                -- 존재한다면 실적을 업데이트한다.
+                UPDATE SUM_HOURLY_ACTUALS SET ACTUAL_QTY = ACTUAL_QTY + CUR_CSR.ACTUAL WHERE PROD_ORDER_ID = V_ORDER_ID AND ACTUAL_HOUR = N_ACTUAL_HOUR AND ACTUAL_MIN = N_ACTUAL_MIN;
+                --DBMS_OUTPUT.PUT_LINE('UPDATED ACTUAL HOUR COUNT');
+            ELSE
+                -- 존재하지 않으면 레코드를 생성한다.
+                INSERT INTO SUM_HOURLY_ACTUALS(
+                    ID, DOMAIN_ID, WORK_DATE, SHIFT, PROD_ORDER_ID, OPERATION_ID,
+                    MACHINE_ID, PRODUCT_ID, ACTUAL_HOUR, ACTUAL_MIN, ACTUAL_QTY, LAST_ACTUAL_TIME
+                ) VALUES (
+                    SYS_GUID(), V_DOMAIN_ID, TO_DATE(CUR_CSR.PRD_DATE, 'YYYYMMDD'), TO_NUMBER(CUR_CSR.SHIFT),
+                    V_ORDER_ID, V_OP_ID, V_MC_ID, V_PD_ID, N_ACTUAL_HOUR, N_ACTUAL_MIN, CUR_CSR.ACTUAL, SYSDATE
+                );
+                --DBMS_OUTPUT.PUT_LINE('CREATED ACTUAL HOUR');
+            END IF;
+
+            -- 최종으로 INF_PMS_OUTR 테이블에 처리한 레코드의 UPLOAD_YN = 'Y'로 업데이트
+            UPDATE
+                INF_PMS_OUTR
+            SET
+                UPLOAD_YN = 'Y'
+            WHERE
+                PRD_DATE=CUR_CSR.PRD_DATE AND
+                SHIFT = CUR_CSR.SHIFT AND
+                ROUTING = CUR_CSR.ROUTING AND
+                ST_NO = CUR_CSR.ST_NO AND
+                INT_NO = CUR_CSR.INT_NO AND
+                P_CODE = CUR_CSR.P_CODE AND
+                ACTDTTM = CUR_CSR.ACTDTTM AND
+                UPLOAD_YN = 'N';
+
+            --DBMS_OUTPUT.PUT_LINE('UPDATED UPLOAD_YN FLAG TO [Y]');
+
+            COMMIT;
+        EXCEPTION
+            WHEN OTHERS THEN
+            DBMS_OUTPUT.PUT_LINE('# ERROR : ' || TO_CHAR(SQLCODE) || ', # ERROR MSG : ' || SUBSTR(SQLERRM, 1, 100));
+        END;
+    END LOOP;
+
+
+EXCEPTION
+    WHEN OTHERS THEN
+    DBMS_OUTPUT.PUT_LINE('# ERROR : ' || TO_CHAR(SQLCODE) || ', # ERROR MSG : ' || SUBSTR(SQLERRM, 1, 100));
+
+END SP_PMS_MES_ACTUAL;

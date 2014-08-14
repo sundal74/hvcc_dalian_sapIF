@@ -1,0 +1,18 @@
+o: ActiveSupport::Cache::Entry	:@compressedF:@created_atf1408003178.761:@expires_in0:@value"F[I"8Ext.define('mixin.Mixin', {
+	mixin : function(clazz, config) {
+		try {
+			switch (typeof (clazz)) {
+			case 'string':
+				Ext.apply(HF, Ext.create(clazz, config));
+				return;
+			case 'object':
+				Ext.apply(HF, clazz);
+			}
+		} catch (e) {
+			HF.error(T('error.MIXIN', {
+				clazz : clazz
+			}), e);
+		}
+	}
+});
+:EF

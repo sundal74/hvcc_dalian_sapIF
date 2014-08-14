@@ -1,0 +1,1 @@
+json.(@machine, :id,:domain_id,:name,:operation_id,:description,:cycletime,:uph,:main_op_flag,:main_mc_flag,:plan_dist_rate,:check_flag,:check_cycle,:creator_id,:updater_id,:created_at,:updated_at)

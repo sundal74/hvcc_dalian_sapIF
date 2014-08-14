@@ -1,0 +1,97 @@
+/*------------------------------------------------------------------------------
+-- 개체 이름: HVCCT_MES.SP_LOSS_TEMPLATE_INF
+-- 만든 날짜 : 2013-05-04 오후 6:26:59
+-- 마지막으로 수정한 날짜 : 2013-05-04 오후 6:27:40
+-- 상태 : VALID
+------------------------------------------------------------------------------*/
+CREATE OR REPLACE PROCEDURE HVCCT_MES.SP_LOSS_TEMPLATE_INF
+ IS
+ LOSSTEMPLATE_CNT	NUMBER(10);
+ CURRENT_DOMAIN	VARCHAR2(64);
+BEGIN
+	SELECT DOMAIN_ID INTO CURRENT_DOMAIN FROM CURRENT_WORK_DATE;
+  CURRENT_DOMAIN := CURRENT_DOMAIN;
+
+	BEGIN
+  	FOR CUR_ORD IN (
+    	SELECT ILT.WEEK_DAY AS WEEK_DAY,
+				ILT.START_TIME AS START_TIME,
+        ILT.END_TIME AS END_TIME,
+        ILT.LOSS_TERM AS LOSS_TERM,
+        ILT.LOSS_CODE AS LOSS_CODE
+			FROM INF_LOSS_TEMPLATE ILT WHERE ILT.DOWNLOAD_YN  = 'N' AND ILT.VALDATE < SYSDATE
+		)
+
+    LOOP
+
+    	BEGIN
+      	SELECT COUNT(*) INTO LOSSTEMPLATE_CNT FROM LOSS_TEMPLATES
+        	WHERE WEEK_DAY = CUR_ORD.WEEK_DAY AND START_TIME = CUR_ORD.START_TIME
+          AND END_TIME = CUR_ORD.END_TIME AND LOSS_CODE_ID = CONCAT(CONCAT(CURRENT_DOMAIN, '-'), CUR_ORD.LOSS_CODE);
+
+        IF(LOSSTEMPLATE_CNT = 0) THEN
+
+         	INSERT INTO
+          	LOSS_TEMPLATES(
+            	ID
+            	, DOMAIN_ID
+             	, WEEK_DAY
+             	, START_TIME
+              , END_TIME
+              , LOSS_TERM
+              , LOSS_CODE_ID
+              , CREATED_AT
+              , UPDATED_AT
+            )
+          VALUES (
+          	TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS')||dbms_random.string('U', 10)
+           	, CURRENT_DOMAIN
+           	, CUR_ORD.WEEK_DAY
+            , CUR_ORD.START_TIME
+            , CUR_ORD.END_TIME
+            , CUR_ORD.LOSS_TERM
+            , CONCAT(CONCAT(CURRENT_DOMAIN, '-'), CUR_ORD.LOSS_CODE)
+            , SYSDATE
+            , SYSDATE
+          );
+
+          UPDATE
+        		INF_LOSS_TEMPLATE
+        	SET
+        		DOWNLOAD_YN  = 'Y'
+    				, DOWNLOAD_TIME = SYSDATE
+        	WHERE
+        		WEEK_DAY = CUR_ORD.WEEK_DAY AND START_TIME = CUR_ORD.START_TIME
+          	AND END_TIME = CUR_ORD.END_TIME AND LOSS_CODE = CUR_ORD.LOSS_CODE;
+
+        ELSE
+					UPDATE
+        		INF_LOSS_TEMPLATE
+        	SET
+        		DOWNLOAD_YN  = 'S'
+    				, DOWNLOAD_TIME = SYSDATE
+        	WHERE
+        		WEEK_DAY = CUR_ORD.WEEK_DAY AND START_TIME = CUR_ORD.START_TIME
+          	AND END_TIME = CUR_ORD.END_TIME AND LOSS_CODE = CUR_ORD.LOSS_CODE;
+        END IF;
+
+
+      EXCEPTION
+        	WHEN OTHERS THEN
+          DBMS_OUTPUT.PUT_LINE('# ERROR1 : ' || TO_CHAR(SQLCODE));
+          	ROLLBACK;
+        END;
+
+    END LOOP;
+
+    COMMIT;
+
+  EXCEPTION
+  	WHEN OTHERS THEN
+    DBMS_OUTPUT.PUT_LINE('# ERROR2 : ' || TO_CHAR(SQLCODE));
+    	ROLLBACK;
+  END;
+
+END SP_LOSS_TEMPLATE_INF;
+
+

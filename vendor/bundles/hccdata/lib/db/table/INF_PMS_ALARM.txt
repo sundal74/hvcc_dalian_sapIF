@@ -1,0 +1,60 @@
+/*------------------------------------------------------------------------------
+-- 개체 이름 : HVCCD_MES.INF_PMS_ALARM
+-- 만든 날짜 : 2013-06-10 오전 8:06:47
+-- 마지막으로 수정한 날짜 : 2013-06-12 오후 5:05:39
+-- 상태 : VALID
+------------------------------------------------------------------------------*/
+DROP TABLE HVCCD_MES.INF_PMS_ALARM CASCADE CONSTRAINTS;
+
+CREATE TABLE HVCCD_MES.INF_PMS_ALARM (
+  ID            VARCHAR2(64)      NOT NULL, 
+  ALARM_TYPE    VARCHAR2(2)           NULL, 
+  PRD_DATE      VARCHAR2(8)           NULL, 
+  SHIFT         VARCHAR2(1)           NULL, 
+  ROUTING       VARCHAR2(5)           NULL, 
+  ST_NO         VARCHAR2(3)           NULL, 
+  P_CODE        VARCHAR2(3)           NULL, 
+  TOTAL         NUMBER(38)            NULL, 
+  FIRST         NUMBER(38)            NULL, 
+  REJECT        NUMBER(38)            NULL, 
+  ERR_CODE      VARCHAR2(4)           NULL, 
+  ERR_CNT       NUMBER                NULL, 
+  INT_NO        VARCHAR2(12)          NULL, 
+  SRL_NO        VARCHAR2(4)           NULL, 
+  COMMENTS      VARCHAR2(100)         NULL, 
+  ACTDTTM       VARCHAR2(30)          NULL, 
+  PROG_ID       VARCHAR2(30)          NULL, 
+  UPLOAD_YN     VARCHAR2(2)           NULL
+)
+TABLESPACE HVCCD_MES_DAT
+PCTFREE 10
+PCTUSED 0
+INITRANS 1
+MAXTRANS 255
+STORAGE (
+    INITIAL 64 K
+    NEXT 1024 K
+    MINEXTENTS 1
+    MAXEXTENTS UNLIMITED
+)
+LOGGING
+NOCACHE
+MONITORING
+NOPARALLEL
+;
+
+ALTER TABLE HVCCD_MES.INF_PMS_ALARM ADD
+(
+    PRIMARY KEY ( ID )
+        USING INDEX
+        TABLESPACE HVCCD_MES_DAT 
+        PCTFREE 10
+        INITRANS 2
+        MAXTRANS 255
+        STORAGE (
+            INITIAL 64 K
+            NEXT 1024 K
+            MINEXTENTS 1
+            MAXEXTENTS UNLIMITED
+        )
+);

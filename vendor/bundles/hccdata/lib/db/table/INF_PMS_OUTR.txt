@@ -1,0 +1,156 @@
+/*------------------------------------------------------------------------------
+-- 개체 이름 : HVCCD_MES.INF_PMS_OUTR
+-- 만든 날짜 : 2013-06-04 오후 10:56:36
+-- 마지막으로 수정한 날짜 : 2013-06-04 오후 10:56:37
+-- 상태 : VALID
+------------------------------------------------------------------------------*/
+DROP TABLE HVCCD_MES.INF_PMS_OUTR CASCADE CONSTRAINTS;
+
+CREATE TABLE HVCCD_MES.INF_PMS_OUTR (
+  PRD_DATE     VARCHAR2(8)          NULL, 
+  SHIFT        VARCHAR2(1)          NULL, 
+  ROUTING      VARCHAR2(5)          NULL, 
+  ST_NO        VARCHAR2(3)          NULL, 
+  INT_NO       VARCHAR2(15)         NULL, 
+  P_CODE       VARCHAR2(3)          NULL, 
+  ACTUAL       NUMBER(38)           NULL, 
+  PROG_ID      VARCHAR2(30)         NULL, 
+  ACTDTTM      VARCHAR2(17)         NULL, 
+  UPLOAD_YN    VARCHAR2(1)          NULL
+)
+TABLESPACE HVCCD_MES_DAT
+PCTFREE 10
+PCTUSED 0
+INITRANS 1
+MAXTRANS 255
+STORAGE (
+    INITIAL 64 K
+    NEXT 1024 K
+    MINEXTENTS 1
+    MAXEXTENTS UNLIMITED
+)
+LOGGING
+NOCACHE
+MONITORING
+NOPARALLEL
+;
+
+/*------------------------------------------------------------------------------
+-- 개체 이름 : HVCCD_MES.IX_PMS_OUTR_0
+-- 만든 날짜 : 2013-06-04 오후 10:56:37
+-- 마지막으로 수정한 날짜 : 2013-06-04 오후 10:56:37
+-- 상태 : VALID
+------------------------------------------------------------------------------*/
+DROP INDEX HVCCD_MES.IX_PMS_OUTR_0;
+
+CREATE INDEX HVCCD_MES.IX_PMS_OUTR_0
+ON HVCCD_MES.INF_PMS_OUTR (PRD_DATE)
+PCTFREE 10
+INITRANS 2
+MAXTRANS 255
+STORAGE (
+    INITIAL 64 K
+    NEXT 1024 K
+    MINEXTENTS 1
+    MAXEXTENTS UNLIMITED
+    PCTINCREASE 0
+)
+TABLESPACE HVCCD_MES_DAT
+LOGGING
+NOPARALLEL;
+
+/*------------------------------------------------------------------------------
+-- 개체 이름 : HVCCD_MES.IX_PMS_OUTR_1
+-- 만든 날짜 : 2013-06-04 오후 10:56:37
+-- 마지막으로 수정한 날짜 : 2013-06-04 오후 10:56:37
+-- 상태 : VALID
+------------------------------------------------------------------------------*/
+DROP INDEX HVCCD_MES.IX_PMS_OUTR_1;
+
+CREATE INDEX HVCCD_MES.IX_PMS_OUTR_1
+ON HVCCD_MES.INF_PMS_OUTR (ROUTING)
+PCTFREE 10
+INITRANS 2
+MAXTRANS 255
+STORAGE (
+    INITIAL 64 K
+    NEXT 1024 K
+    MINEXTENTS 1
+    MAXEXTENTS UNLIMITED
+    PCTINCREASE 0
+)
+TABLESPACE HVCCD_MES_DAT
+LOGGING
+NOPARALLEL;
+
+/*------------------------------------------------------------------------------
+-- 개체 이름 : HVCCD_MES.IX_PMS_OUTR_2
+-- 만든 날짜 : 2013-06-04 오후 10:56:37
+-- 마지막으로 수정한 날짜 : 2013-06-04 오후 10:56:37
+-- 상태 : VALID
+------------------------------------------------------------------------------*/
+DROP INDEX HVCCD_MES.IX_PMS_OUTR_2;
+
+CREATE INDEX HVCCD_MES.IX_PMS_OUTR_2
+ON HVCCD_MES.INF_PMS_OUTR (ST_NO)
+PCTFREE 10
+INITRANS 2
+MAXTRANS 255
+STORAGE (
+    INITIAL 64 K
+    NEXT 1024 K
+    MINEXTENTS 1
+    MAXEXTENTS UNLIMITED
+    PCTINCREASE 0
+)
+TABLESPACE HVCCD_MES_DAT
+LOGGING
+NOPARALLEL;
+
+/*------------------------------------------------------------------------------
+-- 개체 이름 : HVCCD_MES.IX_PMS_OUTR_3
+-- 만든 날짜 : 2013-06-04 오후 10:56:37
+-- 마지막으로 수정한 날짜 : 2013-06-04 오후 10:56:37
+-- 상태 : VALID
+------------------------------------------------------------------------------*/
+DROP INDEX HVCCD_MES.IX_PMS_OUTR_3;
+
+CREATE INDEX HVCCD_MES.IX_PMS_OUTR_3
+ON HVCCD_MES.INF_PMS_OUTR (INT_NO)
+PCTFREE 10
+INITRANS 2
+MAXTRANS 255
+STORAGE (
+    INITIAL 64 K
+    NEXT 1024 K
+    MINEXTENTS 1
+    MAXEXTENTS UNLIMITED
+    PCTINCREASE 0
+)
+TABLESPACE HVCCD_MES_DAT
+LOGGING
+NOPARALLEL;
+
+/*------------------------------------------------------------------------------
+-- 개체 이름 : HVCCD_MES.IX_PMS_OUTR_4
+-- 만든 날짜 : 2013-06-04 오후 10:56:37
+-- 마지막으로 수정한 날짜 : 2013-06-04 오후 10:56:37
+-- 상태 : VALID
+------------------------------------------------------------------------------*/
+DROP INDEX HVCCD_MES.IX_PMS_OUTR_4;
+
+CREATE INDEX HVCCD_MES.IX_PMS_OUTR_4
+ON HVCCD_MES.INF_PMS_OUTR (P_CODE)
+PCTFREE 10
+INITRANS 2
+MAXTRANS 255
+STORAGE (
+    INITIAL 64 K
+    NEXT 1024 K
+    MINEXTENTS 1
+    MAXEXTENTS UNLIMITED
+    PCTINCREASE 0
+)
+TABLESPACE HVCCD_MES_DAT
+LOGGING
+NOPARALLEL;

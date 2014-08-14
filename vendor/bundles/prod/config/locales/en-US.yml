@@ -1,0 +1,69 @@
+en-US:
+  activerecord:
+    models:
+      aaa: 'aaa'     
+    attributes:
+      aaa:
+    errors:
+      messages:
+        record_invalid : 'Invalid Record'
+              
+  button:
+    aaa: 'aaa'
+  
+  tab:
+    aaa: 'aaa'
+  
+  menu_item:
+    aaa: 'aaa'
+  
+  transactions:
+    aaa: 'aaa'
+  
+  legend:
+    aaa: 'aaaa'
+  
+  link:
+    aaa: 'aaaa'
+    
+  error:
+    invalid_label: 'Invalid Label'
+    bom_mismatch_rm: 'Invalid Raw Material, Mismatch BOM'
+    mismatch_label_and_order: 'Label mismatch current production item'
+    mismatch_label_and_operation : 'Label mismatch current production operation'
+    no_running_order : 'No processing production order!'
+    defect_gte_actual : 'Actual Qty. must be greater than Scrap Qty.'
+    lot_already_exist : 'Lot already exist!'
+    lot_already_input : 'Lot already input!'
+    lot_not_exist : 'Not found Lot!'
+    label_master_not_exist : 'Label Master not exist'
+    label_plan_not_exist : 'Label Plan not exist'
+    defect_code_not_exist : 'Scrap Code Not Exist'
+    label_master_has_no_barcode_model : 'Barcode model not specified at label master'
+    label_master_has_no_qty : 'Label master not specified lot size'
+    invalid_data : 'Invalid Data'
+    invalid_label_type : 'Invalid Label type'
+    invalid_label_serial : 'Invalid Label serial'
+    invalid_lot_status : 'Invalid Lot status'
+    invalid_weekday : 'Invalid Week Day'
+    operation_not_found : 'Routing not found'
+    measurement_item_not_registered : 'Measurement Item not found'
+    measurement_value_already_exist : 'Measurement value already exist'
+    plan_date_must_be_gte_today : 'Plan date must be greater than today'
+    invalid_plan_date : 'There are some invalid plan date'
+    workcenter_empty : 'Not allowed Workcenter empty'
+    operation_empty : 'Not allowed Routing empty'
+    product_empty : 'Not allowed Product empty'
+    workcenter_not_exist : 'Not Found Workcenter'
+    operation_not_exist : 'Not Found Routing'
+    machine_not_exist : 'Not Found Equipment'
+    product_not_exist : 'Not Found Product'
+    child_product_not_exist : 'Not Found Child Product'
+    customer_not_exist : 'Not Found Customer'
+    user_not_exist : 'Not Found User'
+    prod_param_already_exist : 'Prod. Param Already Exist'
+    insufficient_inv_qty : 'Insufficient BOM Inv. Qty.'
+    invalid_label_work_date : 'Invalid Work Date'
+    lot_qty_gte_zero : 'Lot size must be greater than 0'
+    product_has_no_child_products : 'Product has no child products'
+    duplicated_code : 'Duplicated Code'

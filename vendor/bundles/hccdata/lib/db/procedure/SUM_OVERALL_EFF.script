@@ -1,0 +1,236 @@
+create or replace
+PROCEDURE           SP_OVERALL_EFF
+ IS
+  CURRENT_DOMAIN            VARCHAR2(64);					--DOMAIN
+  D_CURDATE                 DATE;							--현재날짜
+  V_CURDATE                 VARCHAR2(30);					--현재날짜
+  SUM_ORDER_QTY             NUMBER(38);						--오더수량
+  SUM_ACTUAL_QTY            NUMBER(38);					    --실적수량
+  ID                        VARCHAR2(64);
+
+  NET_WORKTIME              FLOAT(22);				        --정미공수
+  MACHINE_CYCLETIME         FLOAT(22);		                --설비사이클타임
+  NET_CYCLETIME             FLOAT(22);			            --공정/설비/품목 사이클타임
+  REAL_WORKTIME             NUMBER(38);				        --가동공수
+  LOSS_WORKTIME             NUMBER(38);				        --유실공수
+  PROD_EFF                  FLOAT(22);						--생산효율
+  WEEK_DAY                  VARCHAR2(1);					--요일
+  CURRENT_WORKTIME          VARCHAR2(60);					--공정/설비/품목에 해당하는 작업시간
+  WORKER_COUNT              VARCHAR2(5);
+  PROD_PARAM_COUNT          NUMBER(38);
+
+BEGIN
+    D_CURDATE := SYSDATE - 1;
+    V_CURDATE := TO_CHAR(D_CURDATE, 'YYYY-MM-DD');
+
+    BEGIN
+
+  	    SELECT
+            WEEK_DAY, SUM(LOSS_TERM) SUM_LOSS_TERM INTO WEEK_DAY, LOSS_WORKTIME
+        FROM
+            LOSS_TEMPLATES
+        WHERE
+            WEEK_DAY = TO_CHAR(SYSDATE - 1, 'D') GROUP BY WEEK_DAY;
+
+        LOSS_WORKTIME := LOSS_WORKTIME;
+        WEEK_DAY := WEEK_DAY;
+
+    ---------------------------------------------------------------------------------------------------------------------------
+        -- 최초 이전 생산일 데이터 추가
+        INSERT INTO
+    	    SUM_PROD_EFFS (ID, DOMAIN_ID, ORDER_QTY, ACTUAL_QTY, OPERATION_ID, MACHINE_ID, PRODUCT_ID, WORK_DATE)
+        SELECT
+    	    SYS_GUID() AS ID
+            , DOMAIN_ID AS DOMAIN_ID
+    		, SUM(ORDER_QTY) AS ORDER_QTY
+    		, SUM(ACTUAL_QTY) AS ACTUAL_QTY
+            , OPERATION_ID AS OPERATION_ID
+            , MACHINE_ID AS MACHINE_ID
+            , PRODUCT_ID AS PRODUCT_ID
+            , ORDER_DATE AS WORK_DATE
+        FROM
+            PROD_ORDERS
+        WHERE
+    	    TO_CHAR(ORDER_DATE, 'YYYY-MM-DD') = V_CURDATE
+        GROUP BY
+    	    OPERATION_ID, MACHINE_ID, PRODUCT_ID, DOMAIN_ID, ORDER_DATE;
+
+    ---------------------------------------------------------------------------------------------------------------------------
+        -- LOSS WORKTIME (설비 LOSS TIME)
+		UPDATE
+			SUM_PROD_EFFS EFF
+		SET
+			LOSS_WORKTIME = (
+				SELECT
+  				    SUM_LOSS_TERM
+  			    FROM
+				(
+    			    SELECT
+    				    WORK_DATE, OPERATION_ID, MACHINE_ID, PRODUCT_ID, SUM(LOSS_TERM) SUM_LOSS_TERM
+    			    FROM
+      			        MACHINE_LOSSES
+      		        WHERE
+      			        TO_CHAR(WORK_DATE, 'YYYY-MM-DD') = V_CURDATE AND STATUS = '2'
+      		        GROUP BY
+      			        WORK_DATE, OPERATION_ID, MACHINE_ID, PRODUCT_ID
+  			    ) LOSS
+				WHERE
+  				    TO_CHAR(EFF.WORK_DATE, 'YYYY-MM-DD') = TO_CHAR(LOSS.WORK_DATE, 'YYYY-MM-DD')
+      		        AND EFF.OPERATION_ID = LOSS.OPERATION_ID
+      		        AND EFF.MACHINE_ID = LOSS.MACHINE_ID
+      		        AND EFF.PRODUCT_ID = LOSS.PRODUCT_ID)
+		WHERE EXISTS (
+		    SELECT
+  			    *
+  		    FROM
+  			    MACHINE_LOSSES LOSS
+  		    WHERE
+  			    TO_CHAR(WORK_DATE, 'YYYY-MM-DD') = V_CURDATE
+  			    AND TO_CHAR(EFF.WORK_DATE, 'YYYY-MM-DD') = TO_CHAR(LOSS.WORK_DATE, 'YYYY-MM-DD')
+    		    AND EFF.OPERATION_ID = LOSS.OPERATION_ID
+    		    AND EFF.MACHINE_ID = LOSS.MACHINE_ID
+    		    AND EFF.PRODUCT_ID = LOSS.PRODUCT_ID);
+
+
+
+---------------------------------------------------------------------------------------------------------------------------
+        -- INPUT WORKTIME
+		UPDATE
+    	    SUM_PROD_EFFS EFF
+		SET
+    	    INPUT_WORKTIME = (
+				SELECT
+					SUM_WORK_TERM
+				FROM (
+    			    SELECT
+						PO.ORDER_DATE, PO.OPERATION_ID, PO.MACHINE_ID, PO.PRODUCT_ID, SUM(WORK_TERM) SUM_WORK_TERM
+    			    FROM
+    				    WORKER_TIMES WT, PROD_ORDERS PO
+    			    WHERE
+    				    WT.PROD_ORDER_ID = PO.ID AND TO_CHAR(PO.ORDER_DATE, 'YYYY-MM-DD') = V_CURDATE
+    			    GROUP BY PO.ORDER_DATE, PO.OPERATION_ID, PO.MACHINE_ID, PO.PRODUCT_ID
+    		    ) AB
+    		    WHERE
+                    TO_CHAR(EFF.WORK_DATE, 'YYYY-MM-DD') = TO_CHAR(AB.ORDER_DATE, 'YYYY-MM-DD') AND
+                    EFF.OPERATION_ID = AB.OPERATION_ID AND
+                    EFF.MACHINE_ID = AB.MACHINE_ID AND
+                    EFF.PRODUCT_ID = AB.PRODUCT_ID
+  		    )
+  	    WHERE EXISTS (
+  		    SELECT * FROM (
+  			    (SELECT
+				    PO.OPERATION_ID, PO.MACHINE_ID, PO.PRODUCT_ID, PO.ORDER_DATE
+    			FROM
+    				WORKER_TIMES WT, PROD_ORDERS PO
+    			WHERE
+    				WT.PROD_ORDER_ID = PO.ID AND
+                    TO_CHAR(PO.ORDER_DATE, 'YYYY-MM-DD') = V_CURDATE
+                GROUP BY PO.ORDER_DATE, PO.OPERATION_ID, PO.MACHINE_ID, PO.PRODUCT_ID)
+  		    ) A
+            WHERE
+                TO_CHAR(EFF.WORK_DATE, 'YYYY-MM-DD') = TO_CHAR(A.ORDER_DATE, 'YYYY-MM-DD') AND
+                EFF.OPERATION_ID = A.OPERATION_ID AND
+                EFF.MACHINE_ID = A.MACHINE_ID AND
+                EFF.PRODUCT_ID = A.PRODUCT_ID
+  	    );
+
+
+-----------------------------------------------------------------------------------------------------------------------------------------
+		-- LOSS WORKTIME (이전 LOSS WORKTIME + 작업자 LOSS TIME)
+        UPDATE
+    	    SUM_PROD_EFFS EFF
+		SET
+    	    LOSS_WORKTIME = EFF.LOSS_WORKTIME + (
+				SELECT
+					SUM_LOSS_TERM
+				FROM (SELECT
+				        PO.ORDER_DATE, PO.OPERATION_ID, PO.MACHINE_ID, PO.PRODUCT_ID, SUM(LOSS_TERM) SUM_LOSS_TERM
+    			    FROM
+    				    WORKER_TIMES WT, PROD_ORDERS PO
+    			    WHERE
+    				    WT.PROD_ORDER_ID = PO.ID AND TO_CHAR(PO.ORDER_DATE, 'YYYY-MM-DD') = V_CURDATE
+    			    GROUP BY
+                        PO.ORDER_DATE, PO.OPERATION_ID, PO.MACHINE_ID, PO.PRODUCT_ID
+    		    ) AB WHERE
+                    TO_CHAR(EFF.WORK_DATE, 'YYYY-MM-DD') = TO_CHAR(AB.ORDER_DATE, 'YYYY-MM-DD') AND
+                    EFF.OPERATION_ID = AB.OPERATION_ID AND
+                    EFF.MACHINE_ID = AB.MACHINE_ID AND
+                    EFF.PRODUCT_ID = AB.PRODUCT_ID
+  		) WHERE EXISTS (
+  		    SELECT * FROM (
+  			    (SELECT
+				    PO.OPERATION_ID, PO.MACHINE_ID, PO.PRODUCT_ID, PO.ORDER_DATE
+    			FROM
+    				WORKER_TIMES WT, PROD_ORDERS PO
+    			WHERE
+    				WT.PROD_ORDER_ID = PO.ID AND
+                    TO_CHAR(PO.ORDER_DATE, 'YYYY-MM-DD') = V_CURDATE
+                GROUP BY
+                    PO.ORDER_DATE, PO.OPERATION_ID, PO.MACHINE_ID, PO.PRODUCT_ID)
+  		    ) A WHERE
+                TO_CHAR(EFF.WORK_DATE, 'YYYY-MM-DD') = TO_CHAR(A.ORDER_DATE, 'YYYY-MM-DD') AND
+                EFF.OPERATION_ID = A.OPERATION_ID AND
+                EFF.MACHINE_ID = A.MACHINE_ID AND
+                EFF.PRODUCT_ID = A.PRODUCT_ID
+  	    ) ;
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------
+		-- MACHINE CYCLETIME
+        UPDATE
+    	    SUM_PROD_EFFS EFF
+        SET
+            MACHINE_CT = ROUND((SELECT
+                    CYCLETIME
+                FROM
+                    PROD_PARAMS PP
+                WHERE
+                    TO_CHAR(EFF.WORK_DATE, 'YYYY-MM-DD') = V_CURDATE AND
+                    PP.OPERATION_ID = EFF.OPERATION_ID AND
+                    PP.MACHINE_ID = EFF.MACHINE_ID AND
+                    PP.PRODUCT_ID = EFF.PRODUCT_ID), 1)
+        WHERE
+            TO_CHAR(EFF.WORK_DATE, 'YYYY-MM-DD') = V_CURDATE;
+
+------------------------------------------------------------------------------------------------------------------------------------------------
+        -- NET WORKTIME, REAL WORKTIME
+		UPDATE
+			SUM_PROD_EFFS EFF
+		SET
+            NET_WORKTIME = ROUND(((EFF.ACTUAL_QTY * EFF.MACHINE_CT) / 3600), 1),
+            REAL_WORKTIME = (EFF.INPUT_WORKTIME - EFF.LOSS_WORKTIME)
+        WHERE
+            TO_CHAR(EFF.WORK_DATE, 'YYYY-MM-DD') = V_CURDATE;
+
+		UPDATE
+			SUM_PROD_EFFS EFF
+		SET
+            REAL_WORKTIME = 0
+        WHERE
+            TO_CHAR(EFF.WORK_DATE, 'YYYY-MM-DD') = V_CURDATE AND REAL_WORKTIME < 0;
+
+------------------------------------------------------------------------------------------------------------------------------------------------
+        -- PRODUCTION EFFICIENCY, NET CYCLETIME
+		UPDATE
+			SUM_PROD_EFFS EFF
+		SET
+			PROD_EFF = ROUND((EFF.NET_WORKTIME / DECODE(EFF.INPUT_WORKTIME, 0, 1, NULL, 1, EFF.INPUT_WORKTIME)), 2),
+            NET_CT = ROUND((SELECT
+        	        CYCLETIME
+                FROM
+        	        PROD_PARAMS P
+    		    WHERE
+        	        TO_CHAR(EFF.WORK_DATE, 'YYYY-MM-DD') = V_CURDATE
+                    AND EFF.MACHINE_ID = P.MACHINE_ID
+                    AND EFF.OPERATION_ID = P.OPERATION_ID
+                    AND EFF.PRODUCT_ID = P.PRODUCT_ID), 2)
+		WHERE TO_CHAR(EFF.WORK_DATE, 'YYYY-MM-DD') = V_CURDATE;
+
+  	COMMIT;
+
+  EXCEPTION
+  	WHEN OTHERS THEN
+    	ROLLBACK;
+  END;
+
+END;

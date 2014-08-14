@@ -1,0 +1,1 @@
+json._msg 'MachineLoss multiple updated successfully'

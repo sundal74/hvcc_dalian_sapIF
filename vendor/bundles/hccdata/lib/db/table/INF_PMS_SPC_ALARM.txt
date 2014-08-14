@@ -1,0 +1,153 @@
+/*------------------------------------------------------------------------------
+-- 개체 이름 : HVCCD_MES.INF_PMS_SPC_ALARM
+-- 만든 날짜 : 2013-06-12 오후 5:12:20
+-- 마지막으로 수정한 날짜 : 2013-06-12 오후 6:20:49
+-- 상태 : VALID
+------------------------------------------------------------------------------*/
+DROP TABLE HVCCD_MES.INF_PMS_SPC_ALARM CASCADE CONSTRAINTS;
+
+CREATE TABLE HVCCD_MES.INF_PMS_SPC_ALARM (
+  ID            VARCHAR2(64)     NOT NULL, 
+  DOMAIN_ID     VARCHAR2(64)         NULL, 
+  PRD_DATE      VARCHAR2(8)          NULL, 
+  SEQ           NUMBER(38)           NULL, 
+  ROUTING       VARCHAR2(5)          NULL, 
+  ST_NO         VARCHAR2(5)          NULL, 
+  P_CODE        VARCHAR2(3)          NULL, 
+  ITEM_NO       VARCHAR2(20)         NULL, 
+  ALARM_TYPE    VARCHAR2(10)         NULL, 
+  VAL1          FLOAT(22)       DEFAULT 0.0            NULL, 
+  VAL2          FLOAT(22)       DEFAULT 0.0            NULL, 
+  VAL3          FLOAT(22)       DEFAULT 0.0            NULL, 
+  VAL4          FLOAT(22)       DEFAULT 0.0            NULL, 
+  VAL5          FLOAT(22)       DEFAULT 0.0            NULL, 
+  ACTDTTM       VARCHAR2(30)         NULL
+)
+TABLESPACE HVCCD_MES_DAT
+PCTFREE 10
+PCTUSED 0
+INITRANS 1
+MAXTRANS 255
+STORAGE (
+    INITIAL 64 K
+    NEXT 1024 K
+    MINEXTENTS 1
+    MAXEXTENTS UNLIMITED
+)
+LOGGING
+NOCACHE
+MONITORING
+NOPARALLEL
+;
+
+/*------------------------------------------------------------------------------
+-- 개체 이름 : HVCCD_MES.IX_PMS_SPC_ALM_0
+-- 만든 날짜 : 2013-06-12 오후 5:12:20
+-- 마지막으로 수정한 날짜 : 2013-06-12 오후 5:12:20
+-- 상태 : VALID
+------------------------------------------------------------------------------*/
+DROP INDEX HVCCD_MES.IX_PMS_SPC_ALM_0;
+
+CREATE INDEX HVCCD_MES.IX_PMS_SPC_ALM_0
+ON HVCCD_MES.INF_PMS_SPC_ALARM (PRD_DATE)
+PCTFREE 10
+INITRANS 2
+MAXTRANS 255
+STORAGE (
+    INITIAL 64 K
+    NEXT 1024 K
+    MINEXTENTS 1
+    MAXEXTENTS UNLIMITED
+    PCTINCREASE 0
+)
+TABLESPACE HVCCD_MES_DAT
+LOGGING
+NOPARALLEL;
+
+/*------------------------------------------------------------------------------
+-- 개체 이름 : HVCCD_MES.IX_PMS_SPC_ALM_1
+-- 만든 날짜 : 2013-06-12 오후 5:12:20
+-- 마지막으로 수정한 날짜 : 2013-06-12 오후 5:12:20
+-- 상태 : VALID
+------------------------------------------------------------------------------*/
+DROP INDEX HVCCD_MES.IX_PMS_SPC_ALM_1;
+
+CREATE INDEX HVCCD_MES.IX_PMS_SPC_ALM_1
+ON HVCCD_MES.INF_PMS_SPC_ALARM (PRD_DATE, ROUTING)
+PCTFREE 10
+INITRANS 2
+MAXTRANS 255
+STORAGE (
+    INITIAL 64 K
+    NEXT 1024 K
+    MINEXTENTS 1
+    MAXEXTENTS UNLIMITED
+    PCTINCREASE 0
+)
+TABLESPACE HVCCD_MES_DAT
+LOGGING
+NOPARALLEL;
+
+/*------------------------------------------------------------------------------
+-- 개체 이름 : HVCCD_MES.IX_PMS_SPC_ALM_2
+-- 만든 날짜 : 2013-06-12 오후 5:12:20
+-- 마지막으로 수정한 날짜 : 2013-06-12 오후 5:12:20
+-- 상태 : VALID
+------------------------------------------------------------------------------*/
+DROP INDEX HVCCD_MES.IX_PMS_SPC_ALM_2;
+
+CREATE INDEX HVCCD_MES.IX_PMS_SPC_ALM_2
+ON HVCCD_MES.INF_PMS_SPC_ALARM (PRD_DATE, ROUTING, ST_NO)
+PCTFREE 10
+INITRANS 2
+MAXTRANS 255
+STORAGE (
+    INITIAL 64 K
+    NEXT 1024 K
+    MINEXTENTS 1
+    MAXEXTENTS UNLIMITED
+    PCTINCREASE 0
+)
+TABLESPACE HVCCD_MES_DAT
+LOGGING
+NOPARALLEL;
+
+/*------------------------------------------------------------------------------
+-- 개체 이름 : HVCCD_MES.IX_PMS_SPC_ALM_3
+-- 만든 날짜 : 2013-06-12 오후 5:12:21
+-- 마지막으로 수정한 날짜 : 2013-06-12 오후 5:12:21
+-- 상태 : VALID
+------------------------------------------------------------------------------*/
+DROP INDEX HVCCD_MES.IX_PMS_SPC_ALM_3;
+
+CREATE INDEX HVCCD_MES.IX_PMS_SPC_ALM_3
+ON HVCCD_MES.INF_PMS_SPC_ALARM (PRD_DATE, ROUTING, ST_NO, ITEM_NO)
+PCTFREE 10
+INITRANS 2
+MAXTRANS 255
+STORAGE (
+    INITIAL 64 K
+    NEXT 1024 K
+    MINEXTENTS 1
+    MAXEXTENTS UNLIMITED
+    PCTINCREASE 0
+)
+TABLESPACE HVCCD_MES_DAT
+LOGGING
+NOPARALLEL;
+
+ALTER TABLE HVCCD_MES.INF_PMS_SPC_ALARM ADD
+(
+    PRIMARY KEY ( ID )
+        USING INDEX
+        TABLESPACE HVCCD_MES_DAT 
+        PCTFREE 10
+        INITRANS 2
+        MAXTRANS 255
+        STORAGE (
+            INITIAL 64 K
+            NEXT 1024 K
+            MINEXTENTS 1
+            MAXEXTENTS UNLIMITED
+        )
+);

@@ -1,0 +1,78 @@
+create or replace
+PROCEDURE SP_SUM_FTT
+
+IS
+  CURRENT_DOMAIN					VARCHAR2(64);				--DOMAIN
+  D_CURDATE 						DATE;						--현재날짜
+  V_CURDATE							VARCHAR2(64);				--현재날짜
+  SUM_ACTUAL_QTY					NUMBER(38);					--실적수량
+  DEFECT_QTY						NUMBER(38);					--불량수량
+  REWORK_QTY						NUMBER(38);					--REWORK수량
+  TOTAL_BAD_QTY					    NUMBER(38);					--총불량수량(불량+REWORK)
+  TOTAL_QTY							NUMBER(38);					--총생산수량
+  FTT								FLOAT(22);					--FTT
+
+BEGIN
+	D_CURDATE := SYSDATE - 1;
+    V_CURDATE := TO_CHAR(D_CURDATE, 'YYYY-MM-DD');
+
+    BEGIN
+  	    FOR CUR_DOMAIN IN(SELECT ID FROM DOMAINS GROUP BY ID)
+
+        LOOP
+    	    BEGIN
+    		    FOR CUR_ORD IN(
+    			    SELECT
+        		        SUM(ACTUAL_QTY) SUM_ACTUAL_QTY,
+          	            SUM(DEFECT_QTY) DEFECT_QTY,
+          	            SUM(REWORK_QTY) REWORK_QTY,
+          	            OPERATION_ID, 
+                        MACHINE_ID
+					FROM
+        		        PROD_ORDERS
+        	        WHERE
+        		        TO_CHAR(ORDER_DATE, 'YYYY-MM-DD') = V_CURDATE
+        	        GROUP BY
+        		        OPERATION_ID, MACHINE_ID
+    		    )
+
+    		    LOOP
+    			    BEGIN
+          	            CURRENT_DOMAIN := CUR_DOMAIN.ID;
+          	            SUM_ACTUAL_QTY := CUR_ORD.SUM_ACTUAL_QTY;								--SUM_ACTUAL_QTY
+      			        DEFECT_QTY := CUR_ORD.DEFECT_QTY;																									--DEFECT_QTY
+      			        REWORK_QTY := CUR_ORD.REWORK_QTY;																									--REWORK_QTY
+      			        TOTAL_BAD_QTY := DEFECT_QTY + REWORK_QTY;						        --TOTAL_BAD_QTY
+      			        TOTAL_QTY := SUM_ACTUAL_QTY + TOTAL_BAD_QTY;					        --TOTAL_QTY
+
+                        IF(TOTAL_QTY != 0) THEN
+            	            FTT := ((TOTAL_QTY - TOTAL_BAD_QTY) / TOTAL_QTY);
+                        ELSE
+            	            FTT := 0;
+                        END IF;
+
+                        INSERT INTO SUM_FTT(
+              	            ID, DOMAIN_ID, WORK_DATE, OPERATION_ID, MACHINE_ID, 
+                            INPUT_QTY, DEFECT_QTY, REWORK_QTY, TOTAL_DEFECT_QTY, FTT_VALUE)
+                        VALUES(
+              	            SYS_GUID(), CURRENT_DOMAIN, TO_DATE(V_CURDATE, 'YYYY-MM-DD'), CUR_ORD.OPERATION_ID,
+                            CUR_ORD.MACHINE_ID, TOTAL_QTY, DEFECT_QTY, REWORK_QTY, TOTAL_BAD_QTY, ROUND(FTT, 2));
+
+      		    EXCEPTION
+      			    WHEN OTHERS THEN
+        		    ROLLBACK;
+      		    END;
+    		END LOOP;
+
+        EXCEPTION
+    	    WHEN OTHERS THEN
+            ROLLBACK;
+        END;
+    END LOOP;
+
+  EXCEPTION
+  	WHEN OTHERS THEN
+    ROLLBACK;
+  END;
+
+END SP_SUM_FTT;

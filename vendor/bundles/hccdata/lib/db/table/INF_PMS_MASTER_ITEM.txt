@@ -1,0 +1,87 @@
+/*------------------------------------------------------------------------------
+-- 개체 이름 : HVCCD_MES.INF_PMS_MASTER_ITEM
+-- 만든 날짜 : 2013-06-04 오후 10:56:34
+-- 마지막으로 수정한 날짜 : 2013-06-14 오전 9:48:49
+-- 상태 : VALID
+------------------------------------------------------------------------------*/
+DROP TABLE HVCCD_MES.INF_PMS_MASTER_ITEM CASCADE CONSTRAINTS;
+
+CREATE TABLE HVCCD_MES.INF_PMS_MASTER_ITEM (
+  ID                 VARCHAR2(64)     NOT NULL, 
+  DOMAIN_ID          VARCHAR2(64)     NOT NULL, 
+  ROUTING            VARCHAR2(5)          NULL, 
+  ST_NO              VARCHAR2(3)          NULL, 
+  ST_SEQ_NO          NUMBER(38)           NULL, 
+  ITEM_NO            VARCHAR2(20)         NULL, 
+  ITEM_NAME          VARCHAR2(80)         NULL, 
+  ITEM_ORDER         NUMBER(38)           NULL, 
+  LEN                NUMBER(38)           NULL, 
+  POINT_UNDER_LEN    NUMBER(38)           NULL, 
+  SQC_FLG            VARCHAR2(1)          NULL, 
+  TSFR_FLG           VARCHAR2(1)          NULL, 
+  UNIT               VARCHAR2(15)         NULL, 
+  ACTDTTM            VARCHAR2(17)         NULL, 
+  PROG_ID            VARCHAR2(30)         NULL, 
+  DOWNLOAD_YN        VARCHAR2(1)          NULL, 
+  X_USL              FLOAT(22)       DEFAULT 0.0            NULL, 
+  X_LSL              FLOAT(22)       DEFAULT 0.0            NULL, 
+  R_USL              FLOAT(22)       DEFAULT 0.0            NULL, 
+  R_LSL              FLOAT(22)       DEFAULT 0.0            NULL, 
+  MONITOR_FLG        NUMBER(1)       DEFAULT 0            NULL
+)
+TABLESPACE HVCCD_MES_DAT
+PCTFREE 10
+PCTUSED 0
+INITRANS 1
+MAXTRANS 255
+STORAGE (
+    INITIAL 64 K
+    NEXT 1024 K
+    MINEXTENTS 1
+    MAXEXTENTS UNLIMITED
+)
+LOGGING
+NOCACHE
+MONITORING
+NOPARALLEL
+;
+
+/*------------------------------------------------------------------------------
+-- 개체 이름 : HVCCD_MES.IX_PMS_MST_ITM_0
+-- 만든 날짜 : 2013-06-04 오후 10:56:35
+-- 마지막으로 수정한 날짜 : 2013-06-04 오후 10:56:35
+-- 상태 : VALID
+------------------------------------------------------------------------------*/
+DROP INDEX HVCCD_MES.IX_PMS_MST_ITM_0;
+
+CREATE UNIQUE INDEX HVCCD_MES.IX_PMS_MST_ITM_0
+ON HVCCD_MES.INF_PMS_MASTER_ITEM (DOMAIN_ID, ROUTING, ST_NO, ST_SEQ_NO, ITEM_NO)
+PCTFREE 10
+INITRANS 2
+MAXTRANS 255
+STORAGE (
+    INITIAL 64 K
+    NEXT 1024 K
+    MINEXTENTS 1
+    MAXEXTENTS UNLIMITED
+    PCTINCREASE 0
+)
+TABLESPACE HVCCD_MES_DAT
+LOGGING
+NOPARALLEL;
+
+ALTER TABLE HVCCD_MES.INF_PMS_MASTER_ITEM ADD
+(
+    PRIMARY KEY ( ID )
+        USING INDEX
+        TABLESPACE HVCCD_MES_DAT 
+        PCTFREE 10
+        INITRANS 2
+        MAXTRANS 255
+        STORAGE (
+            INITIAL 64 K
+            NEXT 1024 K
+            MINEXTENTS 1
+            MAXEXTENTS UNLIMITED
+        )
+);

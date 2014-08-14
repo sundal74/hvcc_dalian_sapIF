@@ -1,0 +1,1 @@
+json.(@defect, :id,:domain_id,:work_date,:shift,:operation_id,:machine_id,:product_id,:child_product_id,:prod_order_id,:defect_code_id,:defect_qty,:description:created_at,:updated_at)

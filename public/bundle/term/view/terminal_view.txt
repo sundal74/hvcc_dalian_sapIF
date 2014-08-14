@@ -1,0 +1,70 @@
+메뉴 
+	1. 생산 현황 
+		1) 생산 현황 메인 화면 : OpProdM010
+			list : diy_services/GetProdOrdersToday
+			status 변경 : diy_services/DoProdOrderStatus 사용
+		
+		2) 실적수정 : OpProdM020, OpProdP040
+			OpProdM020 (Lot or FINAL) - diy_services/CancelLot
+			OpProdP040 (MANUAL) - diy_services/UpdateProdOrderModifyActual
+		
+		3) 작업자변경 : OpProdP070
+			diy_services/UpdateWorkerPlanModifyTime
+		
+		4) 계획추가 : OpProdP020
+			diy_services/DoAddPlan
+		
+		5) 불량등록 : OpProdP060
+			diy_services/CreateDefect
+		
+		6) 라인정지 : OpLnstP020
+			diy_services/CreateLineStop
+			
+		7) 자재투입 : OpRwmtM010 (Not Use)
+			diy_services/CreateRmLot
+			
+		8) Scan
+			OpScanP100 : Manual Output
+				diy_services/DoActualScan
+			OpScanP110 : Barcode Scan
+				diy_services/DoActualScan
+			OpScanP200 : WIP Input
+				diy_services/WipInput
+				
+		9) 자재요청 : OpProdP080 (Not Use)
+			diy_services/RequestRm
+			
+		10) WIP Input : Term.view.scan.OpScanP200
+			diy_services/WipInput
+			
+		11) 멀티플 매뉴얼 실적 : OpProdP090
+			diy_services/DoMultiManualOutput
+			
+	2. 라인 정지 
+		1) 라인정지 메인 화면 : OpLnstM010
+			list : domains/System/machine_losses
+
+		2) 라인정지 조치 : OpLnstP030
+			diy_services/UpdateLineStopAdjust
+
+		3) 라인정지 상세 : OpLnstP040
+			diy_services/UpdateLineStopReport
+			
+			
+	3. 공지사항
+		1) 공지사항 메인화면 : OpNotiM010
+			list : diy_services/ListNotices
+
+		2) 상세보기 : OpNotiP020
+			diy_services/CreateNoticeCfms
+			
+			
+	4. 메뉴얼
+		1) 메뉴얼 메인화면 : OpDocsM010
+		2) 상세보기 : OpDocsP020
+		
+	5. 자재투입현황 (Not Use)
+		1) 메인 화면 : OpRwmtM030
+		   메뉴 정보 : TmRmLotTrack, Term.view.rwmt.OpRwmtM030 
+			list : diy_services/GetRmLotList
+	

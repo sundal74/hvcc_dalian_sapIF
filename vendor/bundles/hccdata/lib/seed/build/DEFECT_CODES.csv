@@ -1,0 +1,289 @@
+NAME,DESCRIPTION
+A004,Other Scrap
+B001,Holding
+A001,Natural Scrap
+A002,Claim Scrap
+A003,Test/To scrap
+C027,C027
+H036,H036
+I017,I017
+I018,I018
+I021,I021
+R032,R032
+R043,R043
+R044,R044
+H043,H043
+E039,E039
+O021,O021
+E042,E042
+I002,Pipe move off
+I003,Fin Gap
+I004,Leak plate
+I005,Leak Pipe
+I006,Plate Tear
+I007,Bracket not bond
+I008,Bracket not bond
+I009,Plate dent
+I010,Core damage in CAB
+I011,Fin drop
+I012,Cold brazing
+I013,Pipe dent
+I014,Trial
+I015,Z-Core
+I016,Twist core
+I019,Scratch on Pipe
+I020,Bead Deform
+I022,Pipe Leak
+I023,Pipe move off
+I024,Pipe not align
+I025,Black stain oncore
+O001,Fin gap
+O002,Plate slide
+O003,Plate not bond
+O004,Plate dent
+O005,Drop
+O006,Core damage in CAB
+O007,Black stain on plate
+O008,CAB Belt stop
+O009,Leak plate
+O010,Plate collape
+O011,Twist core
+O012,Bracket gap
+O013,Not meet checker
+O014,Black stain on end plate
+O015,Pipe leak
+O016,Leak plate
+O017,Black stain on Fin
+O018,Wrong plate assembly
+O019,Twist core
+R001,Tube tear
+R002,Fin damage
+R003,Fin collape
+R004,Fin drop
+R005,Tube dent
+R006,Fin Gap
+R007,Header to Header NG
+R008,Leak at Tube-Header
+R009,Leak at Support-Header
+R010,Support not bond
+R011,Fin not bond
+R012,Black stain
+R013,Tube overheat
+R014,Cold brazing
+R015,Trial
+R016,Z-Core
+R017,Leak at Inlet tank-Header
+R018,Leak at Outlet tank-Header
+R019,Leak at Inlet tank
+R020,Leak at Outlet tank
+R021,Crimp incomplete
+R022,Lot number unclear
+R023,Gasket missing
+R024,Leak
+R025,Tube pin hole
+R026,Header tab NG
+R027,Side support damage
+R028,Header damage
+R029,Header tab too short
+R030,Tube not expansion
+R031,Support not bond
+R033,Twist core
+R034,Leak at TOC
+R035,Leak at drain plug
+R036,Leak at insert and inlet tank
+R037,S-Nut missing
+R038,Rubber mounting missing
+R039,TOC Cap missing
+R040,Label Missing
+R041,Air bubble in Gasket
+R042,Flux remain
+R045,Small leak
+R046,Crimp Leak
+R047,Discolor
+R048,Tube Leak
+R049,Core damage in CAB
+H029,Pipe move off
+H030,Baffle move off
+H031,Trial
+H032,Tank alignment
+H033,Tank Gap
+H034,Cold brazing
+H035,Fin melt
+H037,Tank dent
+H038,Leak Header-Tank
+H039,Baffle missing
+I001,Plate collape
+R050,Black stain
+C001,C001
+C002,C002
+C003,C003
+C004,C004
+C005,C005
+C006,C006
+C007,C007
+C008,C008
+C009,C009
+C010,C010
+C011,C011
+C012,C012
+C013,C013
+C014,C014
+C015,C015
+C016,C016
+C017,C017
+C018,C018
+C019,C019
+C020,C020
+C022,C022
+C023,C023
+C024,C024
+C025,C025
+C026,C026
+C028,C028
+C029,C029
+C030,C030
+C031,C031
+C032,C032
+C033,C033
+C034,C034
+C035,C035
+C036,C036
+C037,C037
+C038,C038
+C039,C039
+C040,C040
+E001,E001
+E002,E002
+E003,E003
+E004,E004
+E005,E005
+E006,E006
+E007,E007
+E008,E008
+E009,E009
+E010,E010
+E011,E011
+E012,E012
+E013,E013
+E014,E014
+E015,E015
+E016,E016
+E017,E017
+E018,E018
+E019,E019
+E020,E020
+E021,E021
+E022,E022
+E023,E023
+E024,E024
+E025,E025
+E026,E026
+E027,E027
+E028,E028
+E029,E029
+H001,Tube tear
+H002,Fin damage
+H003,Fin collape
+H004,Fin drop
+H005,Header Tab NG
+H006,Side support damage
+H007,Tube dent
+H008,Header Deform
+H009,Header tab too short
+H010,Fin gap
+H011,Tube not expansion
+H012,Header to Header NG
+H013,Tube collape
+H014,Leak at Tube - Header
+H015,Support not bond
+H016,Fin not bond
+H017,Support and Header not bond
+H018,Leak at Connecting-Header
+H019,Leak at Return tank-Header
+H020,Leak at Inlet Pipe - Tank
+H021,Leak at Outlet Pipe - Tank
+H022,Leak at Baffle
+H023,Z-Core
+H024,Twist core
+H025,Tube overheat
+H026,Black stain
+H027,Core damage in CAB
+H028,Pipe Deform
+E030,E030
+H040,Tank Gap
+H041,Leak tube
+H042,Leak Pipe
+I026,Twist core
+E031,E031
+O020,Twist core
+E032,E032
+I027,Plate gap
+E033,E033
+E034,E034
+E035,E035
+E036,E036
+E037,E037
+H044,Slot not align
+H045,Pipe too short
+E038,E038
+H046,Pipe brazing incomplete
+H047,Tank leak
+E040,E040
+E041,E041
+O022,Fin not bond
+E043,E043
+H048,Pipe Gap
+E044,Pipe Deform
+H049,Pipe Deform
+C041,Plate gap
+C021,Pipe leak
+H050,Tube pin hole
+O023,Z-Core
+O024,Bracket slide
+R051,Dummy
+H051,Tank move off
+RA00057,Other
+HP01, Length out spec
+HP02, Burr 
+HP03, Scratch
+HP04, Deformation
+HP05, Other from Auto cutting
+HP06, Bead Dimension out spec
+HP07, Scratch
+HP08, Dent
+HP09, Deformation
+HP10, Tube not circular
+HP11, Tube slit
+HP12, Tube crack
+HP13, J/F Crack
+HP14, GRV fitting mis-dimension
+HP15, GRV nipple mis-dimension
+HP16, Other from E/F & GROOVING
+HP17, Pipe dirty
+HP18, Stain on Pipe
+HP19, Other from Degreaser
+HP20, Mis-Route
+HP21, Dent from clamp
+HP22, Mis-length
+HP23, Tube slit
+HP24, Tube deformation
+HP25, Bending OD <80%
+HP26, Other from Bending process
+HP27,Mis-direction
+HP28,Tube burn
+HP29, J/F burn
+HP30, Union/connection burn
+HP31, Poor melting
+HP32, Pipe unconnect
+HP33, Braze ring unfill
+HP34, Other From Brazing
+HP35, Crimp mis-angle
+HP36, Wrong Hose length
+HP37, Leak at J/F
+HP38, Leak at junction
+HP39, Leake at union
+HP40, Leak at stem
+HP41, Leak from pipe over heat
+HP42, Leak at crimp
+HP43, Part Not meet checker
+HP44, Other

@@ -1,0 +1,69 @@
+ko-KR:
+  activerecord:
+    models:
+      aaa: 'aaa'     
+    attributes:
+      aaa:
+    errors:
+      messages:
+        record_invalid : 'Invalid Record'
+              
+  button:
+    aaa: 'aaa'
+  
+  tab:
+    aaa: 'aaa'
+  
+  menu_item:
+    aaa: 'aaa'
+  
+  transactions:
+    aaa: 'aaa'
+  
+  legend:
+    aaa: 'aaaa'
+  
+  link:
+    aaa: 'aaaa'
+    
+  error:
+    invalid_label: '유효하지 않은 라벨입니다.'
+    bom_mismatch_rm: 'BOM에 포함되지 않은 자재입니다.'
+    mismatch_label_and_order: '현재 생산 중인 품목과 맞지 않은 라벨입니다.'
+    mismatch_label_and_operation : '현재 생산 중인 공정과 맞지 않은 라벨입니다.'
+    no_running_order : '현재 공정에서 생산 중인것이 없습니다.'
+    defect_gte_actual : '불량수량이 실적수량보다 클수 없습니다.'
+    lot_already_exist : '이미 처리된 Lot입니다.'
+    lot_already_input : '이미 투입된 Lot입니다.'
+    lot_not_exist : 'Lot이 존재하지 않습니다.'
+    label_master_not_exist : '현재 공정, 품목에 대한 라벨 마스터에 존재하지 않습니다.'
+    label_plan_not_exist : '라벨 계획이 존재하지 않습니다.'
+    defect_code_not_exist : '스크랩 코드가 존재하지 않습니다.'
+    label_master_has_no_barcode_model : '라벨마스터에 바코드 모델이 지정되어 있지 않습니다.'
+    label_master_has_no_qty : '라벨 마스터에 Lot size가 지정되지 않았습니다.'
+    invalid_data : '유효하지 않은 데이터.'
+    invalid_label_type : '라벨 형식이 맞지 않습니다.'
+    invalid_label_serial : '라벨의 시리얼 형식이 맞지 않습니다.'
+    invalid_lot_status : 'Lot 상태가 유효하지 않습니다.'
+    invalid_weekday : '요일이 유효하지 않습니다.'
+    operation_not_found : '공정이 등록되지 않았습니다.'
+    measurement_item_not_registered : '측정항목이 등록되지 않았습니다.'
+    measurement_value_already_exist : '이미 등록된 측정값입니다.'
+    plan_date_must_be_gte_today : '생산계획 일자는 내일 이후의 날짜만 허용합니다.'
+    invalid_plan_date : '유효하지 않은 날짜가 있습니다.'
+    workcenter_empty : 'Workcenter 빈 값은 허용하지 않습니다.'
+    operation_empty : 'Routing 빈 값은 허용하지 않습니다.'
+    product_empty : 'Product 빈 값은 허용하지 않습니다.'
+    workcenter_not_exist : 'Workcenter가 존재하지 않습니다.'
+    operation_not_exist : 'Routing이 존재하지 않습니다.'
+    machine_not_exist : 'Equipment가 존재하지 않습니다.'
+    product_not_exist : 'Product가 존재하지 않습니다.'
+    child_product_not_exist : '자품목이 존재하지 않습니다.'
+    customer_not_exist : 'Customer가 존재하지 않습니다.'
+    user_not_exist : '사용자가 존재하지 않습니다.'
+    prod_param_already_exist : '생산 파라미터가 이미 존재합니다.'
+    insufficient_inv_qty : '재공 수량이 부족합니다.'
+    invalid_label_work_date : '생산일자가 오늘 날짜가 아닙니다.'
+    lot_qty_gte_zero : 'Lot 수량은 0보다 커야합니다.'
+    product_has_no_child_products : '품목이 자품목을 가지고 있지 않습니다.'
+    duplicated_code : '중복된 코드입니다.'

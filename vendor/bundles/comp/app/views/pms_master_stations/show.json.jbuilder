@@ -1,0 +1,1 @@
+json.(@pms_master_station, :id,:domain_id,:routing,:equipment,:st_no,:name,:tsfr_alarm_limit,:monitor_flg,:actdttm)

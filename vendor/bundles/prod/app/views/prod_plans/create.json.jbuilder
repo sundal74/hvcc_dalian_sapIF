@@ -1,0 +1,1 @@
+json.(@prod_plan, :id,:domain_id,:plan_date,:workcenter_id,:operation_id,:product_id,:shift1_seq,:shift2_seq,:shift3_seq,:shift1_plan_qty,:shift2_plan_qty,:shift3_plan_qty,:creator_id,:updater_id,:created_at,:updated_at)

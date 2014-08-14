@@ -1,0 +1,1 @@
+json.(@product, :id,:domain_id,:name,:description,:prod_type,:pack_type,:unit,:default_qty,:short_name,:model_no,:cust_code,:cust_part_no,:cust_part_name,:creator_id,:updater_id,:created_at,:updated_at)

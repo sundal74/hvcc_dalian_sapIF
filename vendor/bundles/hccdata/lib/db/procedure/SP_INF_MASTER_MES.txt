@@ -1,0 +1,672 @@
+create or replace
+PROCEDURE SP_INF_MASTER
+ IS
+ V_CHECK_CNT		NUMBER(10);
+ V_CURRENT_DOMAIN	VARCHAR2(64);
+ 
+BEGIN
+  -- CURRENT DOMAIN
+  SELECT ID INTO V_CURRENT_DOMAIN FROM DOMAINS WHERE SYSTEM_FLAG = 1 ORDER BY CREATED_AT ASC;
+
+  -- 1. CUSTOMERS
+	BEGIN
+    -- Customer interface 테이블에서 valdate가 현재 시간보다 이전이고 DOWNLOAD_YN = 'N'인 데이터를 찾는다.
+		FOR CUR_ORD IN (
+      SELECT 
+				IC.NAME AS NAME, IC.DESCRIPTION AS DESCRIPTION
+			FROM 
+				INF_CUSTOMER IC 
+			WHERE 
+				IC.DOWNLOAD_YN  = 'N' AND IC.VALDATE < SYSDATE
+		)
+
+    LOOP
+      -- 있으면 SKIP, 없으면 INSERT
+      BEGIN
+        SELECT COUNT(*) INTO V_CHECK_CNT FROM CUSTOMERS WHERE NAME = CUR_ORD.NAME;
+        IF(V_CHECK_CNT = 0) THEN
+          INSERT INTO CUSTOMERS(ID, DOMAIN_ID, NAME, DESCRIPTION, CREATED_AT, UPDATED_AT)
+          VALUES (
+            CONCAT(CONCAT(V_CURRENT_DOMAIN, '-'), CUR_ORD.NAME)
+            , V_CURRENT_DOMAIN
+            , CUR_ORD.NAME
+            , CUR_ORD.DESCRIPTION
+            , SYSDATE
+            , SYSDATE
+          );
+          UPDATE INF_CUSTOMER SET DOWNLOAD_YN  = 'Y', DOWNLOAD_TIME = SYSDATE WHERE NAME = CUR_ORD.NAME AND DESCRIPTION = CUR_ORD.DESCRIPTION;
+        ELSE
+          UPDATE INF_CUSTOMER SET DOWNLOAD_YN  = 'S', DOWNLOAD_TIME = SYSDATE WHERE NAME = CUR_ORD.NAME AND DESCRIPTION = CUR_ORD.DESCRIPTION;
+        END IF;
+
+      EXCEPTION
+        WHEN OTHERS THEN
+        	DBMS_OUTPUT.PUT_LINE('# ERROR AT CUSTOMER : ' || TO_CHAR(SQLCODE));
+      END;
+    END LOOP;
+  END;
+
+  -- 2. SUPPLIERS
+	BEGIN
+    -- Suppliers interface 테이블에서 valdate가 현재 시간보다 이전이고 DOWNLOAD_YN = 'N'인 데이터를 찾는다.
+		FOR CUR_ORD2 IN (
+      SELECT 
+        INS.CODE AS NAME, INS.DESCRIPTION AS DESCRIPTION
+      FROM 
+        INF_SUPPLIER INS
+      WHERE 
+        INS.DOWNLOAD_YN  = 'N' AND INS.VALDATE < SYSDATE
+		)
+
+    LOOP
+      -- 있으면 SKIP, 없으면 INSERT
+      BEGIN
+        V_CHECK_CNT := 0;
+        SELECT COUNT(*) INTO V_CHECK_CNT FROM SUPPLIERS WHERE NAME = CUR_ORD2.NAME;
+        IF(V_CHECK_CNT = 0) THEN
+          INSERT INTO SUPPLIERS(ID, DOMAIN_ID, NAME, DESCRIPTION, CREATED_AT, UPDATED_AT)
+          VALUES (
+            CONCAT(CONCAT(V_CURRENT_DOMAIN, '-'), CUR_ORD2.NAME)
+            , V_CURRENT_DOMAIN
+            , CUR_ORD2.NAME
+            , CUR_ORD2.DESCRIPTION
+            , SYSDATE
+            , SYSDATE
+          );
+          UPDATE INF_SUPPLIER SET DOWNLOAD_YN  = 'Y', DOWNLOAD_TIME = SYSDATE WHERE CODE = CUR_ORD2.NAME AND DESCRIPTION = CUR_ORD2.DESCRIPTION;
+        ELSE
+          UPDATE INF_SUPPLIER SET DOWNLOAD_YN  = 'S', DOWNLOAD_TIME = SYSDATE WHERE CODE = CUR_ORD2.NAME AND DESCRIPTION = CUR_ORD2.DESCRIPTION;
+        END IF;
+      EXCEPTION
+        WHEN OTHERS THEN
+          DBMS_OUTPUT.PUT_LINE('# ERROR AT SUPPLIER : ' || TO_CHAR(SQLCODE));
+      END;       
+    END LOOP;
+  END;
+  
+  --- 3. OPERATIONS
+	BEGIN
+  	FOR CUR_ORD IN (
+    	SELECT
+      	WORKCENTERS.DOMAIN_ID AS DOMAIN_ID,
+				IR.ROUTING_CODE AS NAME,
+				IR.DESCRIPTION AS DESCRIPTION,
+        IR.OP_TYPE AS OP_TYPE,
+				WORKCENTERS.ID AS WORKCENTER_ID,
+        IR.DEPT_TYPE AS DEPT_TYPE,
+        IR.OP_SEQ AS OP_SEQ,
+        DECODE(IR.INV_YN, 'Y', 1, 0) AS INV_FLAG
+			FROM INF_ROUTING IR
+        INNER JOIN WORKCENTERS ON WORKCENTERS.name = IR.WORKCENTER_CODE 
+      WHERE 
+        IR.DOWNLOAD_YN  = 'N' AND IR.VALDATE < SYSDATE
+		)
+
+    LOOP
+    	BEGIN
+        V_CHECK_CNT := 0;
+      	SELECT COUNT(*) INTO V_CHECK_CNT FROM OPERATIONS WHERE NAME = CUR_ORD.NAME;
+
+        IF(V_CHECK_CNT = 0) THEN
+         	INSERT INTO
+          	OPERATIONS(
+            	ID
+            	, DOMAIN_ID
+             	, NAME
+             	, DESCRIPTION
+             	, OP_TYPE
+             	, WORKCENTER_ID
+             	, DEPT_TYPE
+             	, OP_SEQ
+             	, INV_FLAG
+              , CREATED_AT
+              , UPDATED_AT
+            )
+          VALUES (
+          	CONCAT(CONCAT(CUR_ORD.DOMAIN_ID, '-'), CUR_ORD.NAME)
+           	, CUR_ORD.DOMAIN_ID
+           	, CUR_ORD.NAME
+            , CUR_ORD.DESCRIPTION
+           	, CUR_ORD.OP_TYPE
+           	, CUR_ORD.WORKCENTER_ID
+           	, CUR_ORD.DEPT_TYPE
+           	, CUR_ORD.OP_SEQ
+           	, CUR_ORD.INV_FLAG
+            , SYSDATE
+            , SYSDATE
+          );
+        END IF;
+
+        UPDATE INF_ROUTING SET DOWNLOAD_YN  = 'Y' ,DOWNLOAD_TIME = SYSDATE 
+        WHERE ROUTING_CODE = CUR_ORD.NAME AND DESCRIPTION = CUR_ORD.DESCRIPTION;
+
+      EXCEPTION
+        	WHEN OTHERS THEN
+          DBMS_OUTPUT.PUT_LINE('# ERROR AT ROUTING : ' || TO_CHAR(SQLCODE));
+      END;
+    END LOOP;
+  END;
+  
+  -- 4. PRODUCTS
+  
+  BEGIN
+  	FOR CUR_ORD IN (
+    	SELECT IP.PRODUCT_CODE AS NAME,
+				IP.DESCRIPTION AS DESCRIPTION,
+        IP.PROD_TYPE AS PROD_TYPE,
+        IP.UNIT AS UNIT,
+        IP.LOT_SIZE AS DEFAULT_QTY,
+        IP.CYCLETIME AS CYCLETIME
+			FROM INF_PRODUCT IP WHERE IP.DOWNLOAD_YN  = 'N' AND IP.VALDATE < SYSDATE
+		)
+
+    LOOP
+    	BEGIN
+        V_CHECK_CNT := 0;
+      	SELECT COUNT(*) INTO V_CHECK_CNT FROM PRODUCTS WHERE NAME = CUR_ORD.NAME;
+
+        IF(V_CHECK_CNT = 0) THEN
+         	INSERT INTO
+          	PRODUCTS(
+            	ID
+            	, DOMAIN_ID
+             	, NAME
+             	, DESCRIPTION
+              , PROD_TYPE
+              , UNIT
+              , DEFAULT_QTY
+              , CYCLETIME
+              , CREATED_AT
+              , UPDATED_AT
+            )
+          VALUES (
+          	CONCAT(CONCAT(V_CURRENT_DOMAIN, '-'), CUR_ORD.NAME)
+           	, V_CURRENT_DOMAIN
+           	, CUR_ORD.NAME
+            , CUR_ORD.DESCRIPTION
+            , CUR_ORD.PROD_TYPE
+            , CUR_ORD.UNIT
+            , CUR_ORD.DEFAULT_QTY
+            , CUR_ORD.CYCLETIME
+            , SYSDATE
+            , SYSDATE
+          );
+
+          UPDATE
+        		INF_PRODUCT
+        	SET
+        		DOWNLOAD_YN  = 'Y', DOWNLOAD_TIME = SYSDATE
+        	WHERE
+        		PRODUCT_CODE = CUR_ORD.NAME
+          	AND DESCRIPTION = CUR_ORD.DESCRIPTION;
+
+        ELSE
+          UPDATE 
+            PRODUCTS 
+          SET 
+            DESCRIPTION = CUR_ORD.DESCRIPTION,
+            DEFAULT_QTY = CUR_ORD.DEFAULT_QTY, 
+            CYCLETIME = CUR_ORD.CYCLETIME
+          WHERE
+            ID = CONCAT(CONCAT(V_CURRENT_DOMAIN, '-'), CUR_ORD.NAME);
+          
+        	UPDATE
+        		INF_PRODUCT
+        	SET
+        		DOWNLOAD_YN  = 'Y', DOWNLOAD_TIME = SYSDATE
+        	WHERE
+        		PRODUCT_CODE = CUR_ORD.NAME
+          	AND DESCRIPTION = CUR_ORD.DESCRIPTION;
+
+        END IF;
+
+      EXCEPTION
+        	WHEN OTHERS THEN
+          DBMS_OUTPUT.PUT_LINE('# ERROR AT PRODUCT : ' || TO_CHAR(SQLCODE));
+        END;
+
+    END LOOP;
+  END;
+  
+  -- 5. PRODUCT_PARTS 
+  
+	BEGIN
+  	FOR CUR_ORD IN (
+    	SELECT IPP.PARENT_PRODUCT_CODE AS PARENT_PRODUCT_CODE,
+				IPP.CHILD_PRODUCT_CODE AS CHILD_PRODUCT_CODE,
+        IPP.USAGE AS QTY,
+        IPP.UNIT AS UNIT
+			FROM INF_PRODUCT_PART IPP WHERE IPP.DOWNLOAD_YN  = 'N' AND IPP.VALDATE < SYSDATE
+		)
+
+    LOOP
+
+    	BEGIN
+        V_CHECK_CNT := 0;
+      	SELECT COUNT(*) INTO V_CHECK_CNT FROM PRODUCT_PARTS
+        WHERE PARENT_PRODUCT_ID = CONCAT(CONCAT(V_CURRENT_DOMAIN, '-'), CUR_ORD.PARENT_PRODUCT_CODE)
+        AND CHILD_PRODUCT_ID = CONCAT(CONCAT(V_CURRENT_DOMAIN, '-'), CUR_ORD.CHILD_PRODUCT_CODE);
+
+        IF(V_CHECK_CNT = 0) THEN
+
+         	INSERT INTO
+          	PRODUCT_PARTS(
+            	ID
+            	, DOMAIN_ID
+             	, PARENT_PRODUCT_ID
+             	, CHILD_PRODUCT_ID
+              , QTY
+              , UNIT
+              , CREATED_AT
+              , UPDATED_AT
+            )
+          VALUES (
+          	TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS')||dbms_random.string('U', 10)
+           	, V_CURRENT_DOMAIN
+           	, CONCAT(CONCAT(V_CURRENT_DOMAIN, '-'), CUR_ORD.PARENT_PRODUCT_CODE)
+            , CONCAT(CONCAT(V_CURRENT_DOMAIN, '-'), CUR_ORD.CHILD_PRODUCT_CODE)
+            , CUR_ORD.QTY
+            , CUR_ORD.UNIT
+            , SYSDATE
+            , SYSDATE
+          );
+
+          UPDATE
+        		INF_PRODUCT_PART
+        	SET
+        		DOWNLOAD_YN  = 'Y', DOWNLOAD_TIME = SYSDATE
+        	WHERE
+        		PARENT_PRODUCT_CODE = CUR_ORD.PARENT_PRODUCT_CODE
+          	AND CHILD_PRODUCT_CODE = CUR_ORD.CHILD_PRODUCT_CODE;
+
+        ELSE
+        	UPDATE
+        		INF_PRODUCT_PART
+        	SET
+        		DOWNLOAD_YN  = 'S', DOWNLOAD_TIME = SYSDATE
+        	WHERE
+        		PARENT_PRODUCT_CODE = CUR_ORD.PARENT_PRODUCT_CODE
+          	AND CHILD_PRODUCT_CODE = CUR_ORD.CHILD_PRODUCT_CODE;
+        END IF;
+
+      EXCEPTION
+        WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('# ERROR AT PRODUCT PART : ' || TO_CHAR(SQLCODE));
+      END;
+    END LOOP;
+  END;
+  
+  -- 6. MACHINES
+	BEGIN
+  	FOR CUR_ORD IN (
+    	SELECT
+				OPERATIONS.DOMAIN_ID AS DOMAIN_ID,
+				IE.EQUIPMENT_CODE AS NAME,
+				IE.DESCRIPTION AS DESCRIPTION,
+				OPERATIONS.ID AS OPERATION_ID,
+				IE.CYCLETIME AS CYCLETIME,
+				IE.UPH AS UPH,
+				DECODE(IE.MAIN_OP_YN, 'Y', 1, 0) AS MAIN_OP_FLAG,
+				DECODE(IE.PLAN_DIST_RATE, 'Y', 1, 0) AS PLAN_DIST_RATE
+			FROM INF_EQUIP IE
+        INNER JOIN OPERATIONS ON OPERATIONS.name = IE.ROUTING_CODE 
+      WHERE 
+        IE.DOWNLOAD_YN  = 'N' AND IE.VALDATE < SYSDATE
+		)
+
+    LOOP
+    	BEGIN
+        V_CHECK_CNT := 0;
+      	SELECT COUNT(*) INTO V_CHECK_CNT FROM MACHINES WHERE NAME = CUR_ORD.NAME;
+
+        IF(V_CHECK_CNT = 0) THEN
+         	INSERT INTO
+          MACHINES(
+            	ID
+            	, DOMAIN_ID
+             	, NAME
+             	, DESCRIPTION
+             	, OPERATION_ID
+             	, CYCLETIME
+             	, UPH
+             	, MAIN_OP_FLAG
+             	, PLAN_DIST_RATE
+              , CREATED_AT
+              , UPDATED_AT
+            )
+          VALUES (
+          	CONCAT(CONCAT(CUR_ORD.DOMAIN_ID, '-'), CUR_ORD.NAME)
+           	, CUR_ORD.DOMAIN_ID
+           	, CUR_ORD.NAME
+           	, CUR_ORD.DESCRIPTION
+           	, CUR_ORD.OPERATION_ID
+           	, CUR_ORD.CYCLETIME
+           	, CUR_ORD.UPH
+           	, CUR_ORD.MAIN_OP_FLAG
+           	, CUR_ORD.PLAN_DIST_RATE
+            , SYSDATE
+            , SYSDATE
+          );
+
+        ELSE
+					UPDATE
+          	MACHINES MACHINE
+          SET
+           	MACHINE.DESCRIPTION = CUR_ORD.DESCRIPTION,
+           	MACHINE.OPERATION_ID = CUR_ORD.OPERATION_ID,
+           	MACHINE.CYCLETIME = CUR_ORD.CYCLETIME,
+           	MACHINE.UPH = CUR_ORD.UPH,
+           	MACHINE.MAIN_OP_FLAG = CUR_ORD.MAIN_OP_FLAG,
+           	MACHINE.PLAN_DIST_RATE = CUR_ORD.PLAN_DIST_RATE
+          WHERE
+          	MACHINE.DOMAIN_ID = CUR_ORD.DOMAIN_ID
+           	AND MACHINE.NAME = CUR_ORD.NAME;
+
+        END IF;
+
+        UPDATE
+        	INF_EQUIP
+        SET
+        	DOWNLOAD_YN  = 'Y', DOWNLOAD_TIME = SYSDATE
+        WHERE
+        	EQUIPMENT_CODE = CUR_ORD.NAME
+          AND DESCRIPTION = CUR_ORD.DESCRIPTION;
+
+      EXCEPTION
+        WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('# ERROR MACHINE : ' || TO_CHAR(SQLCODE));
+      END;
+
+    END LOOP;
+  END;
+  
+  -- 7. PROD_PARAMS
+	BEGIN
+  	FOR CUR_ORD IN (
+    	SELECT 
+        IPP.ROUTING_CODE AS ROUTING_CODE,
+				IPP.EQUIPMENT_CODE AS EQUIPMENT_CODE,
+        IPP.PRODUCT_CODE AS PRODUCT_CODE,
+        IPP.CYCLETIME AS CYCLETIME,
+        IPP.TARGET_UPH AS TARGET_UPH
+			FROM 
+        INF_PROD_PARAM IPP 
+      WHERE 
+        IPP.DOWNLOAD_YN  = 'N' AND IPP.VALDATE < SYSDATE
+		)
+
+    LOOP
+    	BEGIN
+        V_CHECK_CNT := 0;
+      	SELECT COUNT(*) INTO V_CHECK_CNT FROM PROD_PARAMS
+        WHERE 
+          OPERATION_ID = CONCAT(CONCAT(V_CURRENT_DOMAIN, '-'), CUR_ORD.ROUTING_CODE)
+          AND MACHINE_ID = CONCAT(CONCAT(V_CURRENT_DOMAIN, '-'), CUR_ORD.EQUIPMENT_CODE)
+          AND PRODUCT_ID = CONCAT(CONCAT(V_CURRENT_DOMAIN, '-'), CUR_ORD.PRODUCT_CODE);
+
+        IF(V_CHECK_CNT = 0) THEN
+         	INSERT INTO
+          	PROD_PARAMS(
+            	ID
+            	, DOMAIN_ID
+             	, OPERATION_ID
+             	, MACHINE_ID
+              , PRODUCT_ID
+              , CYCLETIME
+              , TARGET_UPH
+              , CREATED_AT
+              , UPDATED_AT
+            )
+          VALUES (
+          	TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS')||dbms_random.string('U', 10)
+           	, V_CURRENT_DOMAIN
+           	, CONCAT(CONCAT(V_CURRENT_DOMAIN, '-'), CUR_ORD.ROUTING_CODE)
+            , CONCAT(CONCAT(V_CURRENT_DOMAIN, '-'), CUR_ORD.EQUIPMENT_CODE)
+            , CONCAT(CONCAT(V_CURRENT_DOMAIN, '-'), CUR_ORD.PRODUCT_CODE)
+            , CUR_ORD.CYCLETIME
+            , CUR_ORD.TARGET_UPH
+            , SYSDATE
+            , SYSDATE
+          );
+
+          UPDATE
+        		INF_PROD_PARAM
+        	SET
+        		DOWNLOAD_YN  = 'Y', DOWNLOAD_TIME = SYSDATE
+        	WHERE
+        		ROUTING_CODE = CUR_ORD.ROUTING_CODE
+          	AND EQUIPMENT_CODE = CUR_ORD.EQUIPMENT_CODE
+            AND PRODUCT_CODE = CUR_ORD.PRODUCT_CODE;
+
+        ELSE
+        	UPDATE
+        		INF_PROD_PARAM
+        	SET
+        		DOWNLOAD_YN  = 'S', DOWNLOAD_TIME = SYSDATE
+        	WHERE
+        		ROUTING_CODE = CUR_ORD.ROUTING_CODE
+          	AND EQUIPMENT_CODE = CUR_ORD.EQUIPMENT_CODE
+            AND PRODUCT_CODE = CUR_ORD.PRODUCT_CODE;
+
+        END IF;
+
+      EXCEPTION
+        WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('# ERROR PROD_PARAM : ' || TO_CHAR(SQLCODE));
+      END;
+    END LOOP;
+  END;
+  
+  -- 8. DEFECT CODE
+	BEGIN
+  	FOR CUR_ORD IN (
+    	SELECT 
+        IDC.DEFECT_CODE AS NAME,
+				IDC.DESCRIPTION AS DESCRIPTION
+			FROM 
+        INF_DEFECT_CODE IDC 
+      WHERE 
+        IDC.DOWNLOAD_YN  = 'N' AND IDC.VALDATE < SYSDATE
+		)
+
+    LOOP
+    	BEGIN
+        V_CHECK_CNT := 0;
+      	SELECT COUNT(*) INTO V_CHECK_CNT FROM DEFECT_CODES WHERE NAME = CUR_ORD.NAME;
+
+        IF(V_CHECK_CNT = 0) THEN
+
+         	INSERT INTO
+          	DEFECT_CODES(
+            	ID
+            	, DOMAIN_ID
+             	, NAME
+             	, DESCRIPTION
+              , CREATED_AT
+              , UPDATED_AT
+            )
+          VALUES (
+          	CONCAT(CONCAT(V_CURRENT_DOMAIN, '-'), CUR_ORD.NAME)
+           	, V_CURRENT_DOMAIN
+           	, CUR_ORD.NAME
+            , CUR_ORD.DESCRIPTION
+            , SYSDATE
+            , SYSDATE
+          );
+
+          UPDATE
+        		INF_DEFECT_CODE
+        	SET
+        		DOWNLOAD_YN  = 'Y', DOWNLOAD_TIME = SYSDATE
+        	WHERE
+        		DEFECT_CODE = CUR_ORD.NAME;
+
+        ELSE
+        	UPDATE
+        		INF_DEFECT_CODE
+        	SET
+        		DOWNLOAD_YN  = 'S', DOWNLOAD_TIME = SYSDATE
+        	WHERE
+        		DEFECT_CODE = CUR_ORD.NAME;
+
+        END IF;
+
+      EXCEPTION
+        WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('# ERROR DEFECT CODE : ' || TO_CHAR(SQLCODE));
+      END;
+    END LOOP;
+  END;
+  
+  -- 9. LOSS CODE
+  
+	BEGIN
+  	FOR CUR_ORD IN (
+    	SELECT 
+        ILC.LOSS_CODE AS NAME,
+				ILC.DESCRIPTION AS DESCRIPTION
+			FROM 
+        INF_LOSS_CODE ILC 
+      WHERE 
+        ILC.DOWNLOAD_YN  = 'N' AND ILC.VALDATE < SYSDATE
+		)
+
+    LOOP
+    	BEGIN
+        V_CHECK_CNT := 0;
+      	SELECT COUNT(*) INTO V_CHECK_CNT FROM LOSS_CODES WHERE NAME = CUR_ORD.NAME;
+
+        IF(V_CHECK_CNT = 0) THEN
+         	INSERT INTO
+          	LOSS_CODES(
+            	ID
+            	, DOMAIN_ID
+             	, NAME
+             	, DESCRIPTION
+              , CREATED_AT
+              , UPDATED_AT
+            )
+          VALUES (
+          	CONCAT(CONCAT(V_CURRENT_DOMAIN, '-'), CUR_ORD.NAME)
+           	, V_CURRENT_DOMAIN
+           	, CUR_ORD.NAME
+            , CUR_ORD.DESCRIPTION
+            , SYSDATE
+            , SYSDATE
+          );
+
+          UPDATE
+        		INF_LOSS_CODE
+        	SET
+        		DOWNLOAD_YN  = 'Y', DOWNLOAD_TIME = SYSDATE
+        	WHERE
+        		LOSS_CODE = CUR_ORD.NAME
+          	AND DESCRIPTION = CUR_ORD.DESCRIPTION;
+
+        ELSE
+					UPDATE
+        		INF_LOSS_CODE
+        	SET
+        		DOWNLOAD_YN  = 'S', DOWNLOAD_TIME = SYSDATE
+        	WHERE
+        		LOSS_CODE = CUR_ORD.NAME
+          	AND DESCRIPTION = CUR_ORD.DESCRIPTION;
+        END IF;
+
+      EXCEPTION
+        WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('# ERROR LOSS CODE : ' || TO_CHAR(SQLCODE));
+      END;
+    END LOOP;    
+  END;
+  
+  -- 10. LOSS TEMPLATE
+  
+	BEGIN
+  	FOR CUR_ORD IN (
+    	SELECT 
+        ILT.WEEK_DAY AS WEEK_DAY,
+				ILT.START_TIME AS START_TIME,
+        ILT.END_TIME AS END_TIME,
+        ILT.LOSS_TERM AS LOSS_TERM,
+        ILT.LOSS_CODE AS LOSS_CODE
+			FROM 
+        INF_LOSS_TEMPLATE ILT 
+      WHERE 
+        ILT.DOWNLOAD_YN  = 'N' AND 
+        ILT.VALDATE < SYSDATE
+		)
+
+    LOOP
+    	BEGIN
+        V_CHECK_CNT := 0;
+      	SELECT COUNT(*) INTO V_CHECK_CNT FROM LOSS_TEMPLATES
+        WHERE 
+          WEEK_DAY = CUR_ORD.WEEK_DAY AND 
+          START_TIME = CUR_ORD.START_TIME AND 
+          END_TIME = CUR_ORD.END_TIME AND 
+          LOSS_CODE_ID = CONCAT(CONCAT(V_CURRENT_DOMAIN, '-'), CUR_ORD.LOSS_CODE);
+
+        IF(V_CHECK_CNT = 0) THEN
+         	INSERT INTO
+          	LOSS_TEMPLATES(
+            	ID
+            	, DOMAIN_ID
+             	, WEEK_DAY
+             	, START_TIME
+              , END_TIME
+              , LOSS_TERM
+              , LOSS_CODE_ID
+              , CREATED_AT
+              , UPDATED_AT
+            )
+          VALUES (
+          	TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS')||dbms_random.string('U', 10)
+           	, V_CURRENT_DOMAIN
+           	, CUR_ORD.WEEK_DAY
+            , CUR_ORD.START_TIME
+            , CUR_ORD.END_TIME
+            , CUR_ORD.LOSS_TERM
+            , CONCAT(CONCAT(V_CURRENT_DOMAIN, '-'), CUR_ORD.LOSS_CODE)
+            , SYSDATE
+            , SYSDATE
+          );
+
+          UPDATE
+        		INF_LOSS_TEMPLATE
+        	SET
+        		DOWNLOAD_YN  = 'Y', DOWNLOAD_TIME = SYSDATE
+        	WHERE
+        		WEEK_DAY = CUR_ORD.WEEK_DAY AND 
+            START_TIME = CUR_ORD.START_TIME AND 
+            END_TIME = CUR_ORD.END_TIME AND 
+            LOSS_CODE = CUR_ORD.LOSS_CODE;
+
+        ELSE
+					UPDATE
+        		INF_LOSS_TEMPLATE
+        	SET
+        		DOWNLOAD_YN  = 'S', DOWNLOAD_TIME = SYSDATE
+        	WHERE
+        		WEEK_DAY = CUR_ORD.WEEK_DAY AND 
+            START_TIME = CUR_ORD.START_TIME AND 
+            END_TIME = CUR_ORD.END_TIME AND 
+            LOSS_CODE = CUR_ORD.LOSS_CODE;
+        END IF;
+
+      EXCEPTION
+        WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('# ERROR LOSS TEMPLATE : ' || TO_CHAR(SQLCODE));
+      END;
+    END LOOP;
+  END;
+  
+  -- COMMIT
+  
+  COMMIT;
+  
+EXCEPTION
+  WHEN OTHERS THEN
+    DBMS_OUTPUT.PUT_LINE('# ERROR : ' || TO_CHAR(SQLCODE));
+    ROLLBACK;  
+END SP_INF_MASTER;

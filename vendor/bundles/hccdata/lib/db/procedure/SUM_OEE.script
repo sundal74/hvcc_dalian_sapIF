@@ -1,0 +1,177 @@
+create or replace
+PROCEDURE SP_SUM_OEE
+IS
+  --	AVLILABILITY : 유효성(설비 실 가동 시간 / 설비 가동시간)
+  CURRENT_WORKTIME 					NUMBER(20);		-- 총 계획된 시간
+  LOSS_WORKTIME 					NUMBER(20);		-- 공통 무작업 시간
+  MACHINE_LOSS						NUMBER(20);		-- 설비 고장시간
+  MACHINE_RUN_TIME					NUMBER(20);		-- 순 유효 시간
+  CURRENT_MACHINE_RUN_TIME			NUMBER(20);		-- 설비 가동 시간
+  AVAILABILITY						FLOAT(22);
+
+  --	PERFORMANCE : : 성능(설비 사이클타임 * 총생산수량 / 설비 실 가동 시간)
+  MACHINE_CYCLETIME					FLOAT(22);			-- 설비 사이클타임
+  TOTAL_QTY							NUMBER(38);			-- 총 생산수량(생산수량 + 불량 + REWORK)
+  SUM_ACTUAL_QTY					NUMBER(38);			-- 생산 수량
+  PERFORMANCE						FLOAT(22);			-- 성능 효율
+
+  --	QUALITY :  품질((총생산수량 ？ (defect + rework)) / 총생산수량)
+  DEFECT_QTY						NUMBER(38);			--불량 수량
+  REWORK_QTY						NUMBER(38);			--REWORK 수량
+  BAD_QTY							NUMBER(38);			--DEFECT_QTY + REWORK_QTY
+  QUALITY							FLOAT(22);			-- 품질
+
+  -- 	OEE : : Avail. * Perf. * Quality
+  OEE								FLOAT(22);			-- 설비 종합 효율
+  CURRENT_DOMAIN					VARCHAR2(64);		--DOMAIN
+  D_CURDATE 						DATE;
+  V_CURDATE							VARCHAR2(30);
+  WEEK_DAY							VARCHAR2(1);
+  MACHINE_LOSS_COUNT				NUMBER(38);
+
+BEGIN
+    D_CURDATE := SYSDATE - 1;
+    V_CURDATE := TO_CHAR(D_CURDATE, 'YYYY-MM-DD');
+
+  	BEGIN
+        DELETE FROM SUM_OEE WHERE TO_CHAR(WORK_DATE, 'YYYY-MM-DD') = V_CURDATE;
+        
+        SELECT ID INTO CURRENT_DOMAIN FROM DOMAINS WHERE SYSTEM_FLAG = 1;
+                
+  		SELECT
+    		WEEK_DAY, SUM(LOSS_TERM) SUM_LOSS_TERM INTO WEEK_DAY, LOSS_WORKTIME
+    	FROM
+    		LOSS_TEMPLATES
+    	WHERE
+    		WEEK_DAY = TO_CHAR(D_CURDATE, 'D')
+    	GROUP BY
+    		WEEK_DAY;
+
+      	FOR CUR_ORD IN (
+      		SELECT
+        		SUM(ACTUAL_QTY) SUM_ACTUAL_QTY,
+				SUM(WORKTIME) CURRENT_WORKTIME,
+          		SUM(DEFECT_QTY) DEFECT_QTY,
+				SUM(REWORK_QTY) REWORK_QTY,
+          		OPERATION_ID, 
+                MACHINE_ID
+			FROM
+        		PROD_ORDERS
+        	WHERE
+        		TO_CHAR(ORDER_DATE, 'YYYY-MM-DD') = V_CURDATE
+        	GROUP BY
+        		OPERATION_ID, MACHINE_ID
+      )
+
+      LOOP
+      	BEGIN        
+        	SELECT 
+                COUNT(*) INTO MACHINE_LOSS_COUNT 
+            FROM 
+                MACHINE_LOSSES
+            WHERE 
+                TO_CHAR(WORK_DATE, 'YYYY-MM-DD') = V_CURDATE AND 
+                MACHINE_ID = CUR_ORD.MACHINE_ID;
+
+        	IF(MACHINE_LOSS_COUNT = 0) THEN
+          		MACHINE_LOSS := 0;
+          	ELSE
+          		SELECT
+          			SUM(LOSS_TERM) INTO MACHINE_LOSS
+          		FROM
+          			MACHINE_LOSSES
+          		WHERE
+          			TO_CHAR(WORK_DATE, 'YYYY-MM-DD') = V_CURDATE AND 
+                    MACHINE_ID = CUR_ORD.MACHINE_ID
+          		GROUP BY
+          			MACHINE_ID;
+          	END IF;
+
+            SELECT
+          	 	CYCLETIME INTO MACHINE_CYCLETIME
+          	FROM
+          		MACHINES
+          	WHERE
+          		ID = CUR_ORD.MACHINE_ID;
+                 
+            -- 대련은 아래  소스가 적용되어 있음
+            -- 현재 MACHINE CYCLETIME 데이터가 없어서 PROD_PARAMS의 평균값으로 CYCLETIME을 대신한다.
+            --SELECT 
+            --    ROUND(AVG(CYCLETIME), 2) INTO MACHINE_CYCLETIME
+            --FROM
+            --    PROD_PARAMS 
+            --WHERE
+            --    OPERATION_ID = CUR_ORD.OPERATION_ID AND
+            --    MACHINE_ID = CUR_ORD.MACHINE_ID;
+
+            CURRENT_WORKTIME := CUR_ORD.CURRENT_WORKTIME;						--CURRENT_WORKTIME
+            DEFECT_QTY := CUR_ORD.DEFECT_QTY;									--DEFECT_QTY
+            REWORK_QTY := CUR_ORD. REWORK_QTY;									--REWORK_QTY
+            BAD_QTY := CUR_ORD.DEFECT_QTY + CUR_ORD.REWORK_QTY;					--BAD_QTY
+            SUM_ACTUAL_QTY := CUR_ORD.SUM_ACTUAL_QTY;							--SUM_ACTUAL_QTY
+            TOTAL_QTY := SUM_ACTUAL_QTY + BAD_QTY;								--TOTAL_QTY
+
+            IF(MACHINE_CYCLETIME > 0) THEN
+          	    MACHINE_CYCLETIME := ROUND(60 / MACHINE_CYCLETIME, 2);
+            ELSE
+          	    MACHINE_CYCLETIME := 0;
+            END IF;
+
+            IF(CURRENT_WORKTIME IS NOT NULL AND CURRENT_WORKTIME - LOSS_WORKTIME > 0) THEN
+          	    MACHINE_RUN_TIME := CURRENT_WORKTIME - LOSS_WORKTIME;		    --MACHINE_RUN_TIME
+            ELSE
+          	    MACHINE_RUN_TIME := 0;
+            END IF;
+
+            IF(MACHINE_RUN_TIME - MACHINE_LOSS > 0) THEN
+          	    CURRENT_MACHINE_RUN_TIME := MACHINE_RUN_TIME - MACHINE_LOSS;	--CURRENT_MACHINE_RUN_TIME
+            ELSE
+          	    CURRENT_MACHINE_RUN_TIME := 0;
+            END IF;
+
+            IF(MACHINE_RUN_TIME != 0) THEN
+          	    AVAILABILITY := ROUND(CURRENT_MACHINE_RUN_TIME / MACHINE_RUN_TIME, 2);    --AVAILABILITY
+            ELSE
+          	    AVAILABILITY := 0;
+            END IF;
+
+            IF(CURRENT_MACHINE_RUN_TIME != 0) THEN
+          	    PERFORMANCE := ROUND((MACHINE_CYCLETIME * TOTAL_QTY) / CURRENT_MACHINE_RUN_TIME, 2);	-- PERFORMANCE
+            ELSE
+          	    PERFORMANCE := 0;
+            END IF;
+
+            IF(TOTAL_QTY != 0) THEN
+          	    QUALITY := ROUND((TOTAL_QTY - BAD_QTY) / TOTAL_QTY, 2);	                -- QUALITY
+            ELSE
+          	    QUALITY := 0;
+            END IF;
+
+            OEE := ROUND(AVAILABILITY * PERFORMANCE * QUALITY, 2);		                -- OEE
+                                       
+            INSERT INTO SUM_OEE(
+                ID, DOMAIN_ID, WORK_DATE, OPERATION_ID, MACHINE_ID, MACHINE_CT,
+                MACHINE_RUNTIME, VALID_RUNTIME, ACTUAL_QTY, DEFECT_QTY, PROD_QTY,
+                AVAILABILITY, PERF_EFF, QUALITY, OEE_VALUE)
+            VALUES (
+                SYS_GUID(), CURRENT_DOMAIN, TO_DATE(V_CURDATE, 'YYYY-MM-DD'), CUR_ORD.OPERATION_ID, 
+                CUR_ORD.MACHINE_ID, MACHINE_CYCLETIME, MACHINE_RUN_TIME, MACHINE_LOSS, 
+                SUM_ACTUAL_QTY, DEFECT_QTY, TOTAL_QTY, AVAILABILITY, PERFORMANCE, QUALITY, OEE);
+
+        EXCEPTION
+            WHEN OTHERS THEN 
+            DBMS_OUTPUT.PUT_LINE('# ERROR : ' || TO_CHAR(SQLCODE) || ', # ERROR MSG : ' || SUBSTR(SQLERRM, 1, 100));
+        END;
+
+      END LOOP;
+
+      COMMIT;
+
+  	EXCEPTION
+  		WHEN OTHERS THEN 
+        DBMS_OUTPUT.PUT_LINE('# ERROR : ' || TO_CHAR(SQLCODE) || ', # ERROR MSG : ' || SUBSTR(SQLERRM, 1, 100));
+    	ROLLBACK;
+	END;
+
+
+END SP_SUM_OEE;

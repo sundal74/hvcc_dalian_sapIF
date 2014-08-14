@@ -1,0 +1,43 @@
+create or replace
+FUNCTION           SF_GET_SHIFT
+(
+      ARG_DOMAIN_ID         IN     VARCHAR2,
+      ARG_CUR_DATETIME      IN     DATE
+)
+RETURN STRING
+IS
+    V_WORK_DAY          VARCHAR2(100) := '';
+    V_CUR_TIME          VARCHAR2(100) := '';
+    V_STIME             VARCHAR2(100) ;
+    V_ETIME             VARCHAR2(100) ;
+    V_TMP               VARCHAR2(100) := '';
+    L_IDX               NUMBER := 1;
+    V_SHIFT             VARCHAR2(5) := '';
+
+BEGIN
+    V_CUR_TIME := TO_CHAR(ARG_CUR_DATETIME, 'YYYYMMDDHH24MISS');
+
+    SELECT SF_GET_WORK_DAY(ARG_DOMAIN_ID, ARG_CUR_DATETIME) INTO V_WORK_DAY FROM DUAL;
+
+    WHILE L_IDX < 4 LOOP
+        V_SHIFT :=   L_IDX;
+        L_IDX := L_IDX + 1;
+
+        SELECT SF_GET_SHIFT_TIME(ARG_DOMAIN_ID, TO_DATE(V_WORK_DAY,'YYYYMMDD'), V_SHIFT) INTO V_TMP FROM DUAL;
+
+        V_STIME := SUBSTR(V_TMP, 0, 14);
+        V_ETIME := SUBSTR(V_TMP, 15, 14);
+
+        IF (V_CUR_TIME >= V_STIME AND V_CUR_TIME <= V_ETIME ) THEN
+            RETURN V_SHIFT ;
+        END IF;
+
+    END LOOP;
+
+    RETURN '';
+
+EXCEPTION
+     WHEN OTHERS THEN
+          RETURN   'ERROR';
+
+END SF_GET_SHIFT;

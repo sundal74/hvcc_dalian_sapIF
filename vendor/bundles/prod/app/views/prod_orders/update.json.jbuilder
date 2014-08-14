@@ -1,0 +1,1 @@
+json.(@prod_order, :id,:domain_id,:order_date,:workcenter_id,:shift,:operation_id,:machine_id,:product_id,:customer_id,:status,:order_seq,:main_op_flag,:uph,:cycletime,:order_qty,:pallet_qty,:actual_qty,:defect_qty,:rework_qty,:actual_start_time,:actual_end_time,:worker_count,:updated_at)

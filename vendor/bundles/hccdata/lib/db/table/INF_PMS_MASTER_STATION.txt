@@ -1,0 +1,76 @@
+/*------------------------------------------------------------------------------
+-- 개체 이름 : HVCCD_MES.INF_PMS_MASTER_STATION
+-- 만든 날짜 : 2013-06-04 오후 10:56:35
+-- 마지막으로 수정한 날짜 : 2013-06-07 오후 4:22:55
+-- 상태 : VALID
+------------------------------------------------------------------------------*/
+DROP TABLE HVCCD_MES.INF_PMS_MASTER_STATION CASCADE CONSTRAINTS;
+
+CREATE TABLE HVCCD_MES.INF_PMS_MASTER_STATION (
+  ID                  VARCHAR2(64)     NOT NULL, 
+  DOMAIN_ID           VARCHAR2(64)     NOT NULL, 
+  ROUTING             VARCHAR2(5)          NULL, 
+  EQUIPMENT           VARCHAR2(64)         NULL, 
+  ST_NO               VARCHAR2(3)          NULL, 
+  NAME                VARCHAR2(80)         NULL, 
+  PROG_ID             VARCHAR2(30)         NULL, 
+  ACTDTTM             VARCHAR2(17)         NULL, 
+  DOWNLOAD_YN         VARCHAR2(1)          NULL, 
+  TSFR_ALARM_LIMIT    NUMBER(5, 2)    DEFAULT 0         NULL
+)
+TABLESPACE HVCCD_MES_DAT
+PCTFREE 10
+PCTUSED 0
+INITRANS 1
+MAXTRANS 255
+STORAGE (
+    INITIAL 64 K
+    NEXT 1024 K
+    MINEXTENTS 1
+    MAXEXTENTS UNLIMITED
+)
+LOGGING
+NOCACHE
+MONITORING
+NOPARALLEL
+;
+
+/*------------------------------------------------------------------------------
+-- 개체 이름 : HVCCD_MES.IX_PMS_MST_STN_0
+-- 만든 날짜 : 2013-06-04 오후 10:56:36
+-- 마지막으로 수정한 날짜 : 2013-06-04 오후 10:56:36
+-- 상태 : VALID
+------------------------------------------------------------------------------*/
+DROP INDEX HVCCD_MES.IX_PMS_MST_STN_0;
+
+CREATE UNIQUE INDEX HVCCD_MES.IX_PMS_MST_STN_0
+ON HVCCD_MES.INF_PMS_MASTER_STATION (DOMAIN_ID, ROUTING, EQUIPMENT, ST_NO)
+PCTFREE 10
+INITRANS 2
+MAXTRANS 255
+STORAGE (
+    INITIAL 64 K
+    NEXT 1024 K
+    MINEXTENTS 1
+    MAXEXTENTS UNLIMITED
+    PCTINCREASE 0
+)
+TABLESPACE HVCCD_MES_DAT
+LOGGING
+NOPARALLEL;
+
+ALTER TABLE HVCCD_MES.INF_PMS_MASTER_STATION ADD
+(
+    PRIMARY KEY ( ID )
+        USING INDEX
+        TABLESPACE HVCCD_MES_DAT 
+        PCTFREE 10
+        INITRANS 2
+        MAXTRANS 255
+        STORAGE (
+            INITIAL 64 K
+            NEXT 1024 K
+            MINEXTENTS 1
+            MAXEXTENTS UNLIMITED
+        )
+);

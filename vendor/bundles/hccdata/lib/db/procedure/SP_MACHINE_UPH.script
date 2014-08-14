@@ -1,0 +1,29 @@
+/*------------------------------------------------------------------------------
+-- 개체 이름: HVCCT_MES.SP_MACHINE_UPH
+-- 만든 날짜 : 2013-04-26 오후 5:11:46
+-- 마지막으로 수정한 날짜 : 2013-04-26 오후 5:11:46
+-- 상태 : VALID
+------------------------------------------------------------------------------*/
+CREATE OR REPLACE PROCEDURE HVCCT_MES.SP_MACHINE_UPH
+ IS
+BEGIN
+	UPDATE
+		machines machine
+	SET
+		uph = (
+			SELECT
+  				ROUND(SUM(target_uph) / COUNT(*), 2) uph
+  			FROM
+				PROD_PARAMS
+			WHERE
+      			machine.id = PROD_PARAMS.machine_id)
+	WHERE EXISTS (
+		SELECT
+			*
+		FROM
+			PROD_PARAMS pp
+		WHERE
+			machine.id = pp.machine_id
+	);
+
+END SP_MACHINE_UPH;

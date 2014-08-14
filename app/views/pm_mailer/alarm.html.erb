@@ -1,0 +1,52 @@
+<h2><%= @mail_title %></h2><br/>
+
+<% if(@pm_list && !@pm_list.empty?)%>
+<h3>Today's PM List</h3>
+<table border='1' bordercolor='#5D5D5D' cellspacing='0' cellpadding='1'>
+	<tr>
+		<td width='200' bgcolor='#C4DEFF'>&nbsp; PM Type</td>
+		<td width='200' bgcolor='#C4DEFF'>&nbsp; PM Part</td>
+		<td width='700' bgcolor='#C4DEFF'>&nbsp; Equipment</td>
+		<td width='300' bgcolor='#C4DEFF'>&nbsp; Check Point</td>
+		<td width='250' bgcolor='#C4DEFF'>&nbsp; Plan Date</td>
+		<td width='250' bgcolor='#C4DEFF'>&nbsp; Due Date</td>		
+	</tr>
+	
+<% @pm_list.each do |pm_data| %>
+	<tr>
+		<td width='200' align='left'>&nbsp; <%= pm_data.pm_type_code %></td>
+		<td width='200' align='left'>&nbsp; <%= pm_data.pm_part_code %></td>
+		<td width='700' align='left'>&nbsp; <%= pm_data.machine.name %> (<%= pm_data.machine.description %>)</td>
+		<td width='300' align='left'>&nbsp; <%= pm_data.description %></td>
+		<td width='250' align='left'>&nbsp; <%= pm_data.plan_date.localtime.strftime(GlobalConfig.default_date_format) %></td>
+		<td width='250' align='left'>&nbsp; <%= pm_data.due_date.localtime.strftime(GlobalConfig.default_date_format) %></td>
+	</tr>
+<% end %>	
+</table>
+<br/>
+<% end %>
+
+<% if(@overdue_pm_list && !@overdue_pm_list.empty?)%>
+<h3>Overdue PM List</h3>
+<table border='1' bordercolor='#5D5D5D' cellspacing='0' cellpadding='1'>
+	<tr>
+		<td width='200' bgcolor='#C4DEFF'>&nbsp; PM Type</td>
+		<td width='200' bgcolor='#C4DEFF'>&nbsp; PM Part</td>
+		<td width='700' bgcolor='#C4DEFF'>&nbsp; Equipment</td>
+		<td width='300' bgcolor='#C4DEFF'>&nbsp; Check Point</td>
+		<td width='250' bgcolor='#C4DEFF'>&nbsp; Plan Date</td>
+		<td width='250' bgcolor='#C4DEFF'>&nbsp; Due Date</td>		
+	</tr>
+	
+<% @overdue_pm_list.each do |pm_data| %>	
+	<tr>
+		<td width='200' align='left'>&nbsp; <%= pm_data.pm_type_code %></td>
+		<td width='200' align='left'>&nbsp; <%= pm_data.pm_part_code %></td>
+		<td width='700' align='left'>&nbsp; <%= pm_data.machine.name %> (<%= pm_data.machine.description %>)</td>
+		<td width='300' align='left'>&nbsp; <%= pm_data.description %></td>
+		<td width='250' align='left'>&nbsp; <%= pm_data.plan_date.localtime.strftime(GlobalConfig.default_date_format) %></td>
+		<td width='250' align='left'>&nbsp; <%= pm_data.due_date.localtime.strftime(GlobalConfig.default_date_format) %></td>
+	</tr>
+<% end if(@overdue_pm_list) %>	
+</table>
+<% end %>

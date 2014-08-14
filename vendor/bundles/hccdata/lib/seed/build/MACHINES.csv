@@ -1,0 +1,149 @@
+NAME,DESCRIPTION,OPERATION_ID,CYCLETIME,UPH
+4AZZFZ08,CAB Furnace#2,System-6PANC,0,0
+4AZZFZ0R,Furnace Rebraze#1,System-6PANC,0,0
+4BGN0004,Furnace  # 2,System-6PANC,18.93,197.7
+4ABC8A12,Condenser Spot Welding,System-6PAPA,0,0
+4AICCM01,DC INVERTOR SPOT WELDER,System-6PAPA,0,0
+4ARZCC02,Condenser Sub Ass'y,System-6PAPA,0,0
+4B999990,ASS'Y TABLE,System-6PAPA,0,0
+4BTOC002,TOC Inlet / Outlet pipe caulking machine,System-6PAPA,0,0
+4AEV0001,2-Tank Sus Ring  Machine,System-6PAPB,82.94,45.27
+4AEVMU19,Evap J97MU Sus Machine,System-6PAPB,35.71,100.8
+4AEVMU20,Evap J97MU Air Leak & PROOF Tester,System-6PAPB,0,0
+4AEVMU23,EVAP CORE MANIFOLD SPACER ASS'Y,System-6PAPB,35.71,100.8
+4AEVMU24,EVAP CORE VISION TEST& ASS'Y,System-6PAPB,57.34,62.79
+4AZZEE01,Sus Ring Unit,System-6PAPB,80.55,47.94
+4AZZEV02,J90 Evap Core Builder C1/J90,System-6PAPB,0,0
+4AEV0002,2-Tank End Plate Assembly  Machine,System-6PAPB,0,0
+4AHR0001,Tube re-cutting M/C,System-6PAPC,4.29,840
+4AHR0002,Heater Core Crimp M/C,System-6PAPC,0,0
+4AHTAI03,Heater Tank Ass'y (VA/VE),System-6PAPC,0,0
+4ALQHT01,Heater Pipe Caulking Machine,System-6PAPC,0,0
+4ARZEH01,Pipe Stacking,System-6PAPC,85.71,42
+4ARZEH02,Tank Core Ass'y,System-6PAPC,71.43,50.4
+4AICRM01,C100-Inter Cooler Core Builder,System-6PAPD,0,0
+4ARZCM01,CM I/C pipe expanding& CAULKING (Outlet),System-6PAPD,0,0
+4ARZCM02,CM I/C pipe expanding& CAULKING (Inlet),System-6PAPD,0,0
+4ARZCM03,CM I/C Plate & FIN Caulking,System-6PAPD,0,0
+4ARZCM04,CM I/C SUS Ring Inserting M/C,System-6PAPD,0,0
+4AZZIC12,Fin & PLATE Caulking,System-6PAPD,0,0
+4AZZIC13,Inter Cooler Sus Ring Machine,System-6PAPD,72,50
+4B999991,ASS'Y TABLE,System-6PAQA,0,0
+4AZZEE02,Manifold Assembly,System-6PAQB,0,0
+4AC10001,Evaporator& HEATER Inlet& OUTLET Pipe Torch Brazing,System-6PAQB,59.44,60.62
+4B999992,ASS'Y TABLE,System-6PARA,85.27,42.25
+4AZZGZ03,Helium Leak Tester#1,System-6PARC,51.81,70.1
+4AZZGZ06,Helium Leak Tester#2,System-6PARC,50,72
+4AZZGZ05,Helium Leak Tester#2,System-6PARC,0,0
+4AZZGH01,Leak Test Heater Core,System-6PARE,60,60
+4AHTAI04,Leak Test Heater Core,System-6PARE,45.71,80.72
+4BGQ0003,Leak Test Heater Core,System-6PARE,60,60
+4ARZGR01,Radiator air leak test,System-6PARG,0,0
+4AEV0005,2-Tank Proof & AIR LeakTest System,System-6PARH,71.43,50.4
+4AZZFC03,Intercooler air leak test,System-6PARI,0,0
+4AZZIC22,Inter Cooler Air Leak Tester,System-6PARI,113.31,31.91
+4AGEIC01,Inter Cooler Air Leak Tester,System-6PARI,67.26,60.37
+4BOC0005,Oil Cooler Air leak tester,System-6PARK,211.76,17
+4AT6RA06,Rad Module Ass'y& BUFFER Rail\B2E/T6,System-6PASA,0,0
+4AZZIZ18,Criming Rad J39 Machine,System-6PASA,208.44,20.59
+4B999994,ASS'Y TABLE,System-6PASA,0,0
+4AT6RA05,LEAK TEST,System-6PASA,75.71,47.65
+4BGN0001,LEAK TEST,System-6PASA,93.2,38.63
+4B999995,ASS'Y TABLE,System-6PASB,63.91,56.38
+4B999996,ASS'Y TABLE,System-6PASC,0,0
+4B999997,ASS'Y TABLE,System-6PASD,50.21,77.35
+4AZZIZ01,INJ. MOLD M/C #1,System-6PATA,59.27,61.19
+4AZZIZ02,INJ. MOLD M/C #2,System-6PATA,52.5,68.57
+4AZZIZ03,INJ. MOLD M/C #3,System-6PATA,57,64.46
+4AZZIZ08,Ultrasonic Welding M/C,System-6PATB,0,0
+4ARZHB02,Blower Speed Tester,System-6PAUA,144,25
+4B999998,ASS'Y TABLE,System-6PAUB,128.57,28
+4B999999,ASS'Y TABLE,System-6PAUC,120,30
+4ARZHTO1,Control Tester,System-6PAUD,698.82,5.29
+4B999980,ASS'Y TABLE,System-6PAUE,360,10
+4ARZHL01,Comp & CLUTH Ass'y,System-6PAUF,31.25,115.2
+4A199907,ASS'Y TABLE#1,System-6PAUG,0,0
+4AZZGQ01,GQ-E/Blwr Motor Tester,System-6PAUJ,0,0
+4AZZGQ02,GQ-Evap Air Leak Tester,System-6PAUJ,0,0
+4BGQ0001,Evap& HTR motor tester(WIN30601),System-6PAUJ,300,12
+4AT6HV04,ASS'Y CONVEYOR,System-6PAUK,79.78,45.14
+4AZZC108,C1-Blower Motor Tester,System-6PAUK,236.1,16.71
+4AT6AI02,Air Cleaner Ass'y Table,System-6PAUL,80,45
+4AT6AS01,Air Leak Tester,System-6PAUM,0,0
+4AT6HC01,Hot Charge Duct Assembly,System-6PAUM,120,30
+4A199906,dealer kit assembly table,System-6PAVA,0,0
+4AHP0005,Degreaser Machine (Hoses & PIPES),System-6PAWG,3.75,960
+4AHP0008,CNC Bender Machine #1,System-6PAWJ,50.96,105.12
+4ATLHP03,CNC Bender Machine #2,System-6PAWJ,34.86,122.63
+4PEO001,CNC Bender Machine,System-6PAWJ,65.7,77.31
+4AHP0017,Tube Piercing and Dimple Press,System-6PAWK,18.75,192
+4A199904,ASS'Y TABLE#1,System-6PAWQ,206.55,19.89
+4A199905,ASS'Y TABLE#2,System-6PAWQ,205.39,20.59
+4A200501,ASS'Y TABLE#3,System-6PAWQ,228.57,16.07
+4A200502,ASS'Y TABLE#4,System-6PAWQ,191.3,22.26
+4A200503,ASS'Y TABLE#5,System-6PAWQ,188.11,23.87
+4AZZEV01,Torch Welder,System-6PAQB,85.71,42
+4AWMMI01,Modify Core Builder for CF1X,System-6PAPD,71.43,50.4
+4AGRIC01,I/C Core Builder Machine,System-6PAPD,171.43,21
+4ACOM002,Cylinder Bore Boring Machine,System-6CAKA,42.5,84.71
+4ACOM003,Shaft Bore Boring Machine,System-6CAKA,0,0
+4ACOM005,Cylinder Dis-Assy and Deburring machine,System-6CAKA,0,0
+4ACOM006,Washing Machine,System-6CAKA,31.89,200.7
+4ACOM007,Shaft and S/W Plate Assembly Machine,System-6CAKA,0,0
+4ACOM008,Cylinder Assembly Machine,System-6CAKA,0,0
+4ACOM010,STA 10 Insert Shaft Bushings,System-6CAMA,0,0
+4ACOM020,STA 20 Gage for shoe select,System-6CAMA,0,0
+4ACOM040,STA 40 Cylinder & SHAFT Assembly,System-6CAMA,0,0
+4ACOM050,STA 50-60-70 Check Shaft & PISTON Endplay,System-6CAMA,0,0
+4ACOM080,STA 80-81 Load F/R Head O-Ring& BOLTS, V/V,System-6CAMA,0,0
+4ACOM090,STA 90-95 Torque Head Bolts,System-6CAMA,0,0
+4ACOM190,STA 190 Load Label,System-6CAMA,34.28,105.03
+4ACOM300,STA 300 Assembly Valve Plate (Front),System-6CAMA,0,0
+4ACOM305,STA 305 Assembly Valve Plate (Rear),System-6CAMA,0,0
+4AZZBZ01,Press (400 Tons),System-6PAKA,1.5,2400
+4AGEGE32,Press (300 Tons),System-6PAKA,0.94,3840
+4AEV0003,Fin Mill  #4,System-6PALA,1.25,2880
+4AZTOC01,TOC Inner Fin Mill (Fin Mill #7),System-6PALA,1.25,2880
+4AZTOC02,TOC Outer Fin Mill (Fin Mill #8),System-6PALA,1.23,3008
+4AZZAZ01,Fin Mill #2 SN.48645,System-6PALA,1.42,2618.18
+4AZZAZ05,Fin Stacker HTR,System-6PALA,0,0
+4AZZAZ06,Fin Stacker CON/RAD #1,System-6PALA,0,0
+4AZZAZ07,Fin Stacker CON/RAD #2,System-6PALA,0,0
+4AZZC103,C1-Radiator Fin Mill (Fin Mill #9),System-6PALA,1.53,2446.45
+4AZZIC09,Outer Fin Mill Machine (Fin Mill #6),System-6PALA,1.25,2880
+4AZZIC10,Inner Fin Mill Machine (Fin Mill #5),System-6PALA,4.69,768
+4AZZIZ20,Fin Mill #1 (J39A),System-6PALA,0,0
+4A81PV02,Outer Fin Mill Machine (Fin Mill #10),System-6PALA,1.88,1920
+4AZZAZ02,Fin Mill #3 SN.48643,System-6PALA,1.15,3200
+8AWM0102,Inner Fin Mill Machine (Fin Mill #12),System-6PALA,1.88,1920
+4AB2RD01,B299 Radiator/Condenser Core Builder,System-6PAMA,71.43,50.4
+4AB2RD02,B299 Radiator/Condenser Core Builder,System-6PAMA,0,0
+4ARD0002,VCCS-RADIATOR CORE BUILDER M/C [C100],System-6PAMA,184.62,19.5
+4ARDBB01,Radiator Core Builder NF Sonata,System-6PAMA,0,0
+4ARZCR01,Radiator Core Builder J97,System-6PAMA,92.31,39
+4ARZCR02,Radiator Core Builder J39A/J87,System-6PAMA,0,0
+4ARZCR03,Radiator Tube Expander\J39A,System-6PAMA,0,0
+4ARZCR04,VCCS Radiator Core Builder,System-6PAMA,0,0
+4AT6CD08,T6 Radiator/Condenser Core Builder,System-6PAMA,72.75,49.5
+4AZZC101,C1(J48)-Radiator Core Builder,System-6PAMA,0,0
+4ALQCD01,T6 Radiator/Condenser Core Builder,System-6PAMA,105.24,34.78
+4ARBEA03,Radiator Core Builder J39A/J87,System-6PAMA,184.62,19.5
+4BC10015,C1(J48)-Radiator Core Builder,System-6PAMA,221.54,17.55
+4BCDC102,Condenser Core Builder C1/MX,System-6PAMA,0,0
+4PED0704,Radiator Core Builder NF Sonata,System-6PAMA,580.77,7.18
+4ATZCH01,Heater Core Builder,System-6PAMB,72.84,50.5
+4AHTAI02,Heater Core Builder,System-6PAMB,74.72,47.95
+4ACDC101,C100-Condenser core builder machine,System-6PAMC,384.62,9.38
+4ARZCC01,Condenser Core Builder IRDS,System-6PAMC,138.46,26
+4ARZCC03,Condenser Core Builder J39A/GQ/J97/XD,System-6PAMC,0,0
+4AZZC102,Condenser Core Builder C1/MX,System-6PAMC,138.46,26
+4AZZIZ29,Condenser Core Builder J39A/GQ/J97/XD,System-6PAMC,138.46,26
+4BTOC001,TOC Core ass'y machine,System-6PAMD,257.14,14
+4AOCAM02,TOC Core ass'y machine,System-6PAMD,257.14,14
+4AZZDZ01,Degreaser,System-6PANA,0,0
+4AZZFZ01,Fluxer # 1 ( A ),System-6PANB,0,0
+4AZZFZ02,Fluxer # 2 ( B ),System-6PANB,0,0
+4AZZFZ03,Fluxer # 3 ( C ),System-6PANB,0,0
+4AZZFZ05,Furnace  # 1,System-6PANC,10.31,363.06
+4AZZFZ06,Dry off oven,System-6PANC,0,0
+4AZZFZ07,Pre Heating Furnace#2,System-6PANC,0,0

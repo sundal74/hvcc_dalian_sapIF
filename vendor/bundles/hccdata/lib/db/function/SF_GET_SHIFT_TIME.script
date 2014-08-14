@@ -1,0 +1,97 @@
+create or replace
+FUNCTION           SF_GET_SHIFT_TIME
+
+(
+    ARG_DOMAIN_ID      IN     VARCHAR2,
+    ARG_WORK_DATE      IN     DATE,
+    ARG_SHIFT          IN     VARCHAR2
+)
+
+RETURN STRING
+IS
+    V_SHIFT_TIME             VARCHAR2(100) := '';
+
+BEGIN
+    IF ARG_SHIFT = '1' THEN
+        SELECT  SHIFT1_START_TIME || '00' || SHIFT1_END_TIME || '00' INTO V_SHIFT_TIME
+        FROM
+            (
+                SELECT
+                    CASE WHEN SHIFT1_START >= SHIFT1_START  AND SHIFT1_START <= '2400' THEN TO_CHAR(ARG_WORK_DATE,'YYYYMMDD') || SHIFT1_START
+                    ELSE TO_CHAR(ARG_WORK_DATE+1,'YYYYMMDD') || SHIFT1_START  END SHIFT1_START_TIME,
+
+                    CASE WHEN SHIFT1_END > SHIFT1_START  AND SHIFT1_END <= '2400' THEN TO_CHAR(ARG_WORK_DATE,'YYYYMMDD') || SHIFT1_END
+                    ELSE TO_CHAR(ARG_WORK_DATE+1,'YYYYMMDD') || SHIFT1_END END SHIFT1_END_TIME
+                FROM
+                (
+                    SELECT
+                        NVL(SUBSTR(SHIFT1_START, 0,2) || SUBSTR(SHIFT1_START, 4,2), ' ') SHIFT1_START,
+                        NVL(SUBSTR(SHIFT1_END, 0,2) || SUBSTR(SHIFT1_END, 4,2), ' ') SHIFT1_END,
+                        NVL(SUBSTR(SHIFT2_START, 0,2) || SUBSTR(SHIFT2_START, 4,2), ' ') SHIFT2_START,
+                        NVL(SUBSTR(SHIFT2_END, 0,2) || SUBSTR(SHIFT2_END, 4,2), ' ') SHIFT2_END,
+                        NVL(SUBSTR(SHIFT3_START, 0,2) || SUBSTR(SHIFT3_START, 4,2), ' ') SHIFT3_START,
+                        NVL(SUBSTR(SHIFT3_END, 0,2) || SUBSTR(SHIFT3_END, 4,2), ' ') SHIFT3_END
+                    FROM
+                        SHIFTS
+                    WHERE
+                        DOMAIN_ID = ARG_DOMAIN_ID AND
+                        SHIFT1_START IS NOT NULL
+                )
+            );
+    ELSIF  ARG_SHIFT = '2' THEN
+        SELECT  SHIFT2_START_TIME || '00' || SHIFT2_END_TIME || '00' INTO V_SHIFT_TIME
+        FROM
+            (
+                SELECT
+                    CASE WHEN SHIFT2_START >= SHIFT1_START  AND SHIFT2_START <= '2400' THEN TO_CHAR(ARG_WORK_DATE,'YYYYMMDD') || SHIFT2_START
+                    ELSE TO_CHAR(ARG_WORK_DATE+1,'YYYYMMDD') || SHIFT2_START  END SHIFT2_START_TIME,
+
+                    CASE WHEN SHIFT2_END > SHIFT1_START  AND SHIFT2_END <= '2400' THEN TO_CHAR(ARG_WORK_DATE,'YYYYMMDD') || SHIFT2_END
+                    ELSE TO_CHAR(ARG_WORK_DATE+1,'YYYYMMDD') || SHIFT2_END END SHIFT2_END_TIME
+                FROM
+                (
+                    SELECT
+                        NVL(SUBSTR(SHIFT1_START, 0,2) || SUBSTR(SHIFT1_START, 4,2), ' ') SHIFT1_START,
+                        NVL(SUBSTR(SHIFT1_END, 0,2) || SUBSTR(SHIFT1_END, 4,2), ' ') SHIFT1_END,
+                        NVL(SUBSTR(SHIFT2_START, 0,2) || SUBSTR(SHIFT2_START, 4,2), ' ') SHIFT2_START,
+                        NVL(SUBSTR(SHIFT2_END, 0,2) || SUBSTR(SHIFT2_END, 4,2), ' ') SHIFT2_END,
+                        NVL(SUBSTR(SHIFT3_START, 0,2) || SUBSTR(SHIFT3_START, 4,2), ' ') SHIFT3_START,
+                        NVL(SUBSTR(SHIFT3_END, 0,2) || SUBSTR(SHIFT3_END, 4,2), ' ') SHIFT3_END
+                     FROM
+                        SHIFTS WHERE DOMAIN_ID = ARG_DOMAIN_ID AND
+                        SHIFT2_START IS NOT NULL
+                     )
+             );
+    ELSIF  ARG_SHIFT = '3' THEN
+        SELECT  SHIFT3_START_TIME || '00' || SHIFT3_END_TIME || '00' INTO V_SHIFT_TIME
+        FROM
+            (
+                SELECT
+                    CASE WHEN SHIFT3_START >= SHIFT1_START  AND SHIFT3_START <= '2400' THEN TO_CHAR(ARG_WORK_DATE,'YYYYMMDD') || SHIFT3_START
+                    ELSE TO_CHAR(ARG_WORK_DATE+1,'YYYYMMDD') || SHIFT3_START  END SHIFT3_START_TIME,
+
+                    CASE WHEN SHIFT3_END > SHIFT1_START  AND SHIFT3_END <= '2400' THEN TO_CHAR(ARG_WORK_DATE,'YYYYMMDD') || SHIFT3_END
+                    ELSE TO_CHAR(ARG_WORK_DATE+1,'YYYYMMDD') || SHIFT3_END END SHIFT3_END_TIME
+                FROM
+                (
+                    SELECT
+                        NVL(SUBSTR(SHIFT1_START, 0,2) || SUBSTR(SHIFT1_START, 4,2), ' ') SHIFT1_START,
+                        NVL(SUBSTR(SHIFT1_END, 0,2) || SUBSTR(SHIFT1_END, 4,2), ' ') SHIFT1_END,
+                        NVL(SUBSTR(SHIFT2_START, 0,2) || SUBSTR(SHIFT2_START, 4,2), ' ') SHIFT2_START,
+                        NVL(SUBSTR(SHIFT2_END, 0,2) || SUBSTR(SHIFT2_END, 4,2), ' ') SHIFT2_END,
+                        NVL(SUBSTR(SHIFT3_START, 0,2) || SUBSTR(SHIFT3_START, 4,2), ' ') SHIFT3_START,
+                        NVL(SUBSTR(SHIFT3_END, 0,2) || SUBSTR(SHIFT3_END, 4,2), ' ') SHIFT3_END
+                     FROM
+                        SHIFTS WHERE DOMAIN_ID = ARG_DOMAIN_ID AND
+                        SHIFT3_START IS NOT NULL
+                )
+             );
+    END IF;
+
+    RETURN V_SHIFT_TIME;
+
+EXCEPTION
+     WHEN OTHERS THEN
+          RETURN   '';
+
+END SF_GET_SHIFT_TIME;

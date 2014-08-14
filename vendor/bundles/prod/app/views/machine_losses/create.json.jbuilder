@@ -1,0 +1,2 @@
+json.(@machine_loss, :id,:domain_id,:work_date,:shift,:workcenter_id,:operation_id,:machine_id,:product_id,:prod_order_id,:status,:reporter_id,:maintainer_id,:loss_code_id,:breakdown_code,:event_time,:maint_start_time,:maint_end_time,:loss_term,:maint_term,:reporter_comment,:maint_comment,:line_stop_flag,:maintainer_count,:creator_id,:updater_id,:created_at,:updated_at)
+		

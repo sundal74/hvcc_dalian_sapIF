@@ -1,0 +1,20 @@
+o: ActiveSupport::Cache::Entry	:@compressedF:@created_atf1408003178.991:@expires_in0:@value"V[I"HExt.define('mixin.SpotLink', function(){
+	function getParams() {
+		return this._params;
+	}
+
+	function setParams(params, silent) {
+		this._params = params;
+		
+		this.fireEvent('paramschange', this, params);
+
+		if(!silent)
+			HF.history.add(this, params);
+	}
+	
+	return {
+		getParams : getParams,
+		setParams : setParams
+	};
+}());
+:EF

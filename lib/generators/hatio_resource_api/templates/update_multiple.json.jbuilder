@@ -1,0 +1,1 @@
+json._msg '<%= class_name %> multiple updated successfully'

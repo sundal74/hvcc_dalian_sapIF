@@ -1,0 +1,1 @@
+json.id @machine.id

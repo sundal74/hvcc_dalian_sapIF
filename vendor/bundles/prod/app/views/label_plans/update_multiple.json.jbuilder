@@ -1,0 +1,1 @@
+json._msg 'LabelPlan multiple updated successfully'

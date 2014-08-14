@@ -1,0 +1,1 @@
+json._msg 'Favorites multiple updated successfully'

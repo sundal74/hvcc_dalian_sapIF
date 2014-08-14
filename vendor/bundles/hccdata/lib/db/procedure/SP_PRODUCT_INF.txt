@@ -1,0 +1,97 @@
+/*------------------------------------------------------------------------------
+-- 개체 이름: HVCCT_MES.SP_PRODUCT_INF
+-- 만든 날짜 : 2013-05-04 오후 6:38:54
+-- 마지막으로 수정한 날짜 : 2013-05-04 오후 6:38:54
+-- 상태 : VALID
+------------------------------------------------------------------------------*/
+CREATE OR REPLACE PROCEDURE HVCCT_MES.SP_PRODUCT_INF
+ IS
+ PRODUCT_CNT	NUMBER(10);
+ CURRENT_DOMAIN	VARCHAR2(64);
+BEGIN
+	SELECT DOMAIN_ID INTO CURRENT_DOMAIN FROM CURRENT_WORK_DATE;
+  CURRENT_DOMAIN := CURRENT_DOMAIN;
+
+	BEGIN
+  	FOR CUR_ORD IN (
+    	SELECT IP.PRODUCT_CODE AS NAME,
+				IP.DESCRIPTION AS DESCRIPTION,
+        IP.PROD_TYPE AS PROD_TYPE,
+        IP.UNIT AS UNIT,
+        IP.LOT_SIZE AS DEFAULT_QTY,
+        IP.CYCLETIME AS CYCLETIME
+			FROM INF_PRODUCT IP WHERE IP.DOWNLOAD_YN  = 'N' AND IP.VALDATE < SYSDATE
+		)
+
+    LOOP
+
+    	BEGIN
+      	SELECT COUNT(*) INTO PRODUCT_CNT FROM PRODUCTS WHERE NAME = CUR_ORD.NAME;
+
+        IF(PRODUCT_CNT = 0) THEN
+
+         	INSERT INTO
+          	PRODUCTS(
+            	ID
+            	, DOMAIN_ID
+             	, NAME
+             	, DESCRIPTION
+              , PROD_TYPE
+              , UNIT
+              , DEFAULT_QTY
+              , CYCLETIME
+              , CREATED_AT
+              , UPDATED_AT
+            )
+          VALUES (
+          	CONCAT(CONCAT(CURRENT_DOMAIN, '-'), CUR_ORD.NAME)
+           	, CURRENT_DOMAIN
+           	, CUR_ORD.NAME
+            , CUR_ORD.DESCRIPTION
+            , CUR_ORD.PROD_TYPE
+            , CUR_ORD.UNIT
+            , CUR_ORD.DEFAULT_QTY
+            , CUR_ORD.CYCLETIME
+            , SYSDATE
+            , SYSDATE
+          );
+
+          UPDATE
+        		INF_PRODUCT
+        	SET
+        		DOWNLOAD_YN  = 'Y'
+    				, DOWNLOAD_TIME = SYSDATE
+        	WHERE
+        		PRODUCT_CODE = CUR_ORD.NAME
+          	AND DESCRIPTION = CUR_ORD.DESCRIPTION;
+
+        ELSE
+        	UPDATE
+        		INF_PRODUCT
+        	SET
+        		DOWNLOAD_YN  = 'S'
+    				, DOWNLOAD_TIME = SYSDATE
+        	WHERE
+        		PRODUCT_CODE = CUR_ORD.NAME
+          	AND DESCRIPTION = CUR_ORD.DESCRIPTION;
+
+        END IF;
+
+      EXCEPTION
+        	WHEN OTHERS THEN
+          DBMS_OUTPUT.PUT_LINE('# ERROR1 : ' || TO_CHAR(SQLCODE));
+          	ROLLBACK;
+        END;
+
+    END LOOP;
+
+    COMMIT;
+
+  EXCEPTION
+  	WHEN OTHERS THEN
+    DBMS_OUTPUT.PUT_LINE('# ERROR2 : ' || TO_CHAR(SQLCODE));
+    	ROLLBACK;
+  END;
+END SP_PRODUCT_INF;
+
+
